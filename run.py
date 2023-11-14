@@ -1,3 +1,18 @@
+import gspread
+from google.oauth2.service_account import Credentials
+from pprint import pprint
+
+SCOPE = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive.file",
+    "https://www.googleapis.com/auth/drive"
+    ]
+
+CREDS = Credentials.from_service_account_file('creds.json')
+SCOPED_CREDS = CREDS.with_scopes(SCOPE)
+GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
+SHEET = GSPREAD_CLIENT.open("dag-tui")
+
 class DAG:
     def __init__(self):
         """
@@ -33,8 +48,8 @@ class DAG:
 def main():
     print("Welcome to DagTui -- A Terminal User Interface for Directed Acyclic Graphs")
     dag = DAG()
-    dag.add_node('node1', title='Node 1 Title', content='This is the content for node 1')
-    dag.add_node('node2', title='Node 2 Title', content='This is the content for node 2')
+    dag.add_node('node1', title='Node 1 Title', description='This is the description for node 1')
+    dag.add_node('node2', title='Node 2 Title', description='This is the description for node 2')
     dag.add_edge('node1', 'node2')
     dag.add_edge('node1', 'node3')
 
