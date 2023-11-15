@@ -72,16 +72,16 @@ class DAG:
 
             print()
 
-    # Identify and display orphan nodes
-    print("Orphaned nodes:")
-    orphan_nodes = [node for node in nodes if not any(edge['causedBy'] == node['node_id'] or edge['causes'] == node['node_id'] for edge in edges)]
-    if orphan_nodes:
-        for orphan in orphan_nodes:
-            print(f"{orphan['node_id']} - {orphan['title']}: {orphan['description']}")
-    else:
-        print("All nodes are currently associated in graph.")
+        # Identify and display orphan nodes
+        print("Orphaned nodes:")
+        orphan_nodes = [node for node in nodes if not any(edge['causedBy'] == node['node_id'] or edge['causes'] == node['node_id'] for edge in edges)]
+        if orphan_nodes:
+            for orphan in orphan_nodes:
+                print(f"{orphan['node_id']} - {orphan['title']}: {orphan['description']}")
+        else:
+            print("All nodes are currently associated in graph.")
 
-    print()
+        print()
 
 def main():
     print()
