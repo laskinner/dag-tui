@@ -42,35 +42,35 @@ class DAG:
         # Add edge to the edges sheet
         self.edges_sheet.append_row([f'{causedBy}-{causes}', causedBy, causes])
 
-def visualize(self):
-    # Check if the nodes worksheet is empty
-    if not self.nodes_sheet.get_all_values():
-        print("No nodes to visualize.")
-        return
+    def visualize(self):
+        # Check if the nodes worksheet is empty
+        if not self.nodes_sheet.get_all_values():
+            print("No nodes to visualize.")
+            return
 
-    # Check if the edges worksheet is empty
-    if not self.edges_sheet.get_all_values():
-        print("No edges to visualize.")
-        return
+        # Check if the edges worksheet is empty
+        if not self.edges_sheet.get_all_values():
+            print("No edges to visualize.")
+            return
 
-    # Read nodes and edges from sheets
-    nodes = self.nodes_sheet.get_all_records()
-    edges = self.edges_sheet.get_all_records()
+        # Read nodes and edges from sheets
+        nodes = self.nodes_sheet.get_all_records()
+        edges = self.edges_sheet.get_all_records()
 
-    for node in nodes:
-        print(f"Node {node['node_id']} - {node['title']}")
-        print(f"  Description: {node['description']}")
-        has_edges = False
+        for node in nodes:
+            print(f"Node {node['node_id']} - {node['title']}")
+            print(f"  Description: {node['description']}")
+            has_edges = False
 
-        for edge in edges:
-            if edge['causedBy'] == node['node_id']:
-                print(f"    -> Causes: {edge['causes']}")
-                has_edges = True
+            for edge in edges:
+                if edge['causedBy'] == node['node_id']:
+                    print(f"    -> Causes: {edge['causes']}")
+                    has_edges = True
 
-        if not has_edges:
-            print("    [No outgoing edges]")
+            if not has_edges:
+                print("    [No outgoing edges]")
 
-        print()
+            print()
 
     # Identify and display orphan nodes
     print("Orphaned nodes:")
