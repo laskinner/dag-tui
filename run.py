@@ -72,6 +72,26 @@ class DAG:
 
             print()
 
+    def edit_nodes(self):
+        nodes = self.nodes_sheet.get_all_records()
+        edges = self.edges_sheet.get_all_records()
+
+        print("\nNodes:")
+        print(f"{'ID':<10}{'Title':<20}{'Description':<30}{'Caused By':<20}{'Causes':<20}")
+        for node in nodes:
+            node_id = node['node_id']
+            title = node['title']
+            description = node['description']
+
+            # Find edges related to this node
+            caused_by = ', '.join([edge['causedBy'] for edge in edges if edge['causes'] == node_id])
+            causes = ', '.join([edge['causes'] for edge in edges if edge['causedBy'] == node_id])
+
+            print(f"{node_id:<10}{title:<20}{description:<30}{caused_by:<20}{causes:<20}")
+
+        # Placeholder for further edit functionality
+        print("\nEdit functionality to be implemented.")
+
         # Identify and display orphan nodes
         print("Orphaned nodes:")
         orphan_nodes = [node for node in nodes if not any(edge['causedBy'] == node['node_id'] or edge['causes'] == node['node_id'] for edge in edges)]
