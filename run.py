@@ -84,8 +84,8 @@ class DAG:
             description = node['description']
 
             # Find edges related to this node
-            caused_by = ', '.join([edge['causedBy'] for edge in edges if edge['causes'] == node_id])
-            causes = ', '.join([edge['causes'] for edge in edges if edge['causedBy'] == node_id])
+            caused_by = ', '.join([str(edge['causedBy']) for edge in edges if str(edge['causes']) == node_id])
+            causes = ', '.join([str(edge['causes']) for edge in edges if str(edge['causedBy']) == node_id])
 
             print(f"{node_id:<10}{title:<20}{description:<30}{caused_by:<20}{causes:<20}")
 
