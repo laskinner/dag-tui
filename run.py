@@ -87,8 +87,6 @@ def main():
     print()
     print("Welcome to DagTui -- A Terminal User Interface for Directed Acyclic Graphs\n")
     dag = DAG()
-    dag.add_node('4', title='Node 4', description='This is the description for node 4')
-    dag.add_edge('4', '3')
 
     dag.visualize()
 
