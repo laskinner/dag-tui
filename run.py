@@ -87,7 +87,36 @@ def main():
     print()
     print("Welcome to DagTui -- A Terminal User Interface for Directed Acyclic Graphs\n")
     dag = DAG()
+    while True:
+            # Print the menu
+            print("\nWhat would you like to do?")
+            print("1. View graph (default view)")
+            print("2. Edit nodes")
+            print("3. Add nodes")
+            print("4. Delete nodes")
+            print("5. Exit")
 
-    dag.visualize()
+            # Get user input with validation
+            try:
+                choice = int(input("Enter your choice (1-5): "))
 
-main()
+                if choice == 1:
+                    dag.visualize()
+                elif choice == 2:
+                    # Placeholder for edit nodes functionality
+                    print("Edit nodes functionality not implemented yet.")
+                elif choice == 3:
+                    # Placeholder for add nodes functionality
+                    print("Add nodes functionality not implemented yet.")
+                elif choice == 4:
+                    # Placeholder for delete nodes functionality
+                    print("Delete nodes functionality not implemented yet.")
+                elif choice == 5:
+                    print("Exiting program.")
+                    break
+                else:
+                    print("Invalid choice. Please enter a number between 1 and 5.")
+            except ValueError:
+                print("Please enter a valid number.")
+if __name__ == "__main__":
+    main()
