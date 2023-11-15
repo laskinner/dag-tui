@@ -28,14 +28,14 @@ class DAG:
             self.nodes[node_id] = attributes
             self.edges[node_id] = []
 
-    def add_edge(self, from_node, to_node):
-        if from_node in self.edges and to_node in self.nodes:
-            if to_node not in self.edges[from_node]:
-                self.edges[from_node].append(to_node)
+    def add_edge(self, causedBy, causes):
+        if causedBy in self.edges and causes in self.nodes:
+            if causes not in self.edges[causedBy]:
+                self.edges[causedBy].append(causes)
             else:
-                print(f"Edge from {from_node} to {to_node} already exists.")
+                print(f"Edge from {causedBy} to {causees} already exists.")
         else:
-            print(f"One or both nodes do not exist: {from_node}, {to_node}")
+            print(f"One or both nodes do not exist: {causedBy}, {causes}")
 
     def visualize(self):
         for node in self.nodes:
