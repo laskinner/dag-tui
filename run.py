@@ -19,21 +19,28 @@ class DAG:
         self.edges_sheet = SHEET.worksheet('edges')
 
     def add_node(self, node_id, **attributes):
-        # Check if the worksheet is empty
-        if self.nodes_sheet.row_count < 2:
-            # The sheet is empty (no data rows)
-            # Add the node directly
-            self.nodes_sheet.append_row([node_id, attributes.get('title', ''), attributes.get('description', '')])
+        # Fetch data from the nodes worksheet
+        node_data = self.nodes_sheet.get_all_values()
+
+        # Check if node already exists (ignoring the header row)
+        if any(node[0] == node_id for node in node_data[1:]):
+            print(f"Node {node_id} already exists.")
             return
 
-        # Rest of your code...
+        # Add node to the nodes sheet
+        self.nodes_sheet.append_row([node_id, attributes.get('title', ''), attributes.get('description', '')])
 
     def add_edge(self, causedBy, causes):
-        # Similar check for edges sheet
-        if self.edges_sheet.row_count < 2:
-            # The sheet is empty
-            self.edges_sheet.append_row([f'{causedBy}-{causes}', causedBy, causes])
+        # Fetch data from the edges worksheet
+        edge_data = self.edges_sheet.get_all_values()
+
+        # Check if edge already exists (ignoring the header row)
+        if any(edge[1] == causedBy and edge[2] == causes for edge in edge_data[1:]):
+            print(f"Edge from {causedBy} to {causes} already exists.")
             return
+
+        # Add edge to the edges sheet
+        self.edges_sheet.append_row([f'{causedBy}-{causes}', causedBy, causes])
 
     def visualize(self):
         # Check if the nodes worksheet is empty
@@ -51,9 +58,9 @@ class DAG:
         edges = self.edges_sheet.get_all_records()
 
         for node in nodes:
-            print(f"Node {node['id']}: {node['title']}")
+            print(f"Node {node['node_id']}: {node['title']}")
             for edge in edges:
-                if edge['causedBy'] == node['id']:
+                if edge['causedBy'] == node['node_id']:
                     print(f"  -> {edge['causes']}")
             print()
 
@@ -61,11 +68,8 @@ def main():
     print()
     print("Welcome to DagTui -- A Terminal User Interface for Directed Acyclic Graphs\n")
     dag = DAG()
-    dag.add_node('node1', title='Node 1', description='This is the description for node 1')
-    dag.add_node('node2', title='Node 2', description='This is the description for node 2')
-    dag.add_node('node3', title='Node 3', description='This is the description for node 3')
-    dag.add_edge('node1', 'node2')
-    dag.add_edge('node1', 'node3')
+    dag.add_node('4', title='Node 4', description='This is the description for node 4')
+    dag.add_edge('4', '3')
 
     dag.visualize()
 
