@@ -124,7 +124,7 @@ def main():
                     dag.visualize()
                 elif choice == 2:
                     # Placeholder for edit nodes functionality
-                    print("Edit nodes functionality not implemented yet.")
+                    dag.edit_nodes()
                 elif choice == 3:
                     # Placeholder for add nodes functionality
                     print("Add nodes functionality not implemented yet.")
