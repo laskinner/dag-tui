@@ -15,36 +15,48 @@ SHEET = GSPREAD_CLIENT.open("dag-tui")
 
 class DAG:
     def __init__(self):
-        """
-        Dictionaries for nodes, as well as their attributes, and edges 
-        """
-        self.nodes = {}
-        self.edges = {}
+        self.nodes_sheet = SHEET.worksheet('nodes')
+        self.edges_sheet = SHEET.worksheet('edges')
 
     def add_node(self, node_id, **attributes):
-        if node_id in self.nodes:
-            print(f"Node {node_id} already exists.")
-        else:
-            self.nodes[node_id] = attributes
-            self.edges[node_id] = []
+        # Check if the worksheet is empty
+        if self.nodes_sheet.row_count < 2:
+            # The sheet is empty (no data rows)
+            # Add the node directly
+            self.nodes_sheet.append_row([node_id, attributes.get('title', ''), attributes.get('description', '')])
+            return
+
+        # Rest of your code...
 
     def add_edge(self, causedBy, causes):
-        if causedBy in self.edges and causes in self.nodes:
-            if causes not in self.edges[causedBy]:
-                self.edges[causedBy].append(causes)
-            else:
-                print(f"Edge from {causedBy} to {causees} already exists.")
-        else:
-            print(f"One or both nodes do not exist: {causedBy}, {causes}")
+        # Similar check for edges sheet
+        if self.edges_sheet.row_count < 2:
+            # The sheet is empty
+            self.edges_sheet.append_row([f'{causedBy}-{causes}', causedBy, causes])
+            return
 
     def visualize(self):
-        for node in self.nodes:
-            print(f"Node {node}: {self.nodes[node]['title']}")
-            for edge in self.edges[node]:
-                print(f"  -> {edge}")
+        # Check if the nodes worksheet is empty
+        if not self.nodes_sheet.get_all_values():
+            print("No nodes to visualize.")
+            return
+
+        # Check if the edges worksheet is empty
+        if not self.edges_sheet.get_all_values():
+            print("No edges to visualize.")
+            return
+
+        # Read nodes and edges from sheets
+        nodes = self.nodes_sheet.get_all_records()
+        edges = self.edges_sheet.get_all_records()
+
+        for node in nodes:
+            print(f"Node {node['id']}: {node['title']}")
+            for edge in edges:
+                if edge['causedBy'] == node['id']:
+                    print(f"  -> {edge['causes']}")
             print()
 
-# Example usage:
 def main():
     print()
     print("Welcome to DagTui -- A Terminal User Interface for Directed Acyclic Graphs\n")
