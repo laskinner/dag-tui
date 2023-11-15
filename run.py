@@ -46,10 +46,12 @@ class DAG:
 
 # Example usage:
 def main():
-    print("Welcome to DagTui -- A Terminal User Interface for Directed Acyclic Graphs")
+    print()
+    print("Welcome to DagTui -- A Terminal User Interface for Directed Acyclic Graphs\n")
     dag = DAG()
-    dag.add_node('node1', title='Node 1 Title', description='This is the description for node 1')
-    dag.add_node('node2', title='Node 2 Title', description='This is the description for node 2')
+    dag.add_node('node1', title='Node 1', description='This is the description for node 1')
+    dag.add_node('node2', title='Node 2', description='This is the description for node 2')
+    dag.add_node('node3', title='Node 3', description='This is the description for node 3')
     dag.add_edge('node1', 'node2')
     dag.add_edge('node1', 'node3')
 
