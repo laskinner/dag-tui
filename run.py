@@ -18,11 +18,21 @@ GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open("dag-tui")
 
 class DAG:
+    """A class to represent a Directed Acyclic Graph (DAG) and interact with Google Sheets for data storage."""
+
     def __init__(self):
+        """Initialize the DAG class with worksheets for nodes and edges."""
         self.nodes_sheet = SHEET.worksheet('nodes')
         self.edges_sheet = SHEET.worksheet('edges')
 
     def add_node(self, node_id, **attributes):
+        """
+        Add a new node to the DAG.
+
+        Args:
+            node_id: An identifier for the node.
+            **attributes: Arbitrary keyword arguments representing node attributes, like title and description.
+        """
         # Fetch data from the nodes worksheet
         node_data = self.nodes_sheet.get_all_values()
 
@@ -35,6 +45,13 @@ class DAG:
         self.nodes_sheet.append_row([node_id, attributes.get('title', ''), attributes.get('description', '')])
 
     def add_edge(self, causedBy, causes):
+        """
+        Add a new edge to the DAG.
+
+        Args:
+            causedBy: The node_id of the node causing the edge.
+            causes: The node_id of the node that is caused by the edge.
+        """
         # Fetch data from the edges worksheet
         edge_data = self.edges_sheet.get_all_values()
 
@@ -47,6 +64,9 @@ class DAG:
         self.edges_sheet.append_row([f'{str(causedBy)}-{str(causes)}', str(causedBy), str(causes)])
 
     def visualize(self):
+        """
+        Visualize the DAG by printing nodes and their relationships.
+        """
         # Check if the nodes worksheet is empty
         if not self.nodes_sheet.get_all_values():
             print("No nodes to visualize.")
@@ -78,6 +98,14 @@ class DAG:
 
 
     def update_node(self, node_id, title=None, description=None):
+        """
+        Update the details of a specific node.
+
+        Args:
+            node_id: The identifier of the node to update.
+            title: (Optional) The new title for the node.
+            description: (Optional) The new description for the node.
+        """
         # Fetch all nodes
         nodes = self.nodes_sheet.get_all_records()
         # Find the row index of the node to update
@@ -95,6 +123,9 @@ class DAG:
         print(f"Node {node_id} updated successfully.")
 
     def edit_nodes(self):
+        """
+        Provide an interface for editing nodes in the DAG.
+        """
         nodes = self.nodes_sheet.get_all_records()
         edges = self.edges_sheet.get_all_records()
         
