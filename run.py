@@ -231,7 +231,7 @@ def main():
     while True:
             # Print the menu
             print("\nWhat would you like to do?")
-            print("1. View graph (default view)")
+            print("1. View graph (verbose)")
             print("2. Edit nodes")
             print("3. Add nodes")
             print("4. Delete nodes")
