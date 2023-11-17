@@ -1,6 +1,5 @@
 import gspread
 from google.oauth2.service_account import Credentials
-from pprint import pprint
 import warnings
 
 # Suppress specific deprecation warnings from Google Sheets API regarding future proofing code
