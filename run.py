@@ -1,6 +1,10 @@
 import gspread
 from google.oauth2.service_account import Credentials
 from pprint import pprint
+import warnings
+
+# Suppress specific deprecation warnings from Google Sheets API regarding future proofing code
+warnings.filterwarnings("ignore", message=".*Method signature's arguments 'range_name' and 'values' will change their order.*")
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -72,11 +76,29 @@ class DAG:
 
             print()
 
+
+    def update_node(self, node_id, title=None, description=None):
+        # Fetch all nodes
+        nodes = self.nodes_sheet.get_all_records()
+        # Find the row index of the node to update
+        row_index = next((i for i, node in enumerate(nodes, start=2) if str(node['node_id']) == str(node_id)), None)
+
+        if not row_index:
+            print(f"No node found with ID {node_id}")
+            return
+
+        # Update the node's details
+        if title is not None:
+            self.nodes_sheet.update(range_name=f'B{row_index}', values=[[title]])
+        if description is not None:
+            self.nodes_sheet.update(range_name=f'C{row_index}', values=[[description]])
+        print(f"Node {node_id} updated successfully.")
+
     def edit_nodes(self):
         nodes = self.nodes_sheet.get_all_records()
         edges = self.edges_sheet.get_all_records()
         
-    # Define the width of each column
+        # Define the width of each column
         id_width = 10
         title_width = 20
         desc_width = 35
@@ -115,6 +137,17 @@ class DAG:
             print("All nodes are currently associated in graph.")
 
         print()
+
+        node_id_to_edit = input("\nEnter the ID of the node you wish to edit (or 'exit' to go back): ")
+        if node_id_to_edit.lower() == 'exit':
+            return
+        
+        # Get new values for title and description
+        new_title = input("Enter new title (or leave blank to keep unchanged): ")
+        new_description = input("Enter new description (or leave blank to keep unchanged): ")
+
+        # Call the update method
+        self.update_node(node_id_to_edit, title=new_title if new_title else None, description=new_description if new_description else None)
 
 def main():
     print()
