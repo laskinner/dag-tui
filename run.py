@@ -177,6 +177,19 @@ class DAG:
         # Call the update method
         self.update_node(node_id_to_edit, title=new_title if new_title else None, description=new_description if new_description else None)
 
+    def add_node_ui(self):
+        """
+        Interface for adding a new node to the DAG.
+        """
+        print("\nAdd New Node")
+        node_id = input("Enter node ID: ")
+        title = input("Enter node title: ")
+        description = input("Enter node description: ")
+
+        # Call the add_node method
+        self.add_node(node_id, title=title, description=description)
+        print(f"Node {node_id} added successfully.")
+
 def main():
     print()
     print("Welcome to DagTui -- A Terminal User Interface for Directed Acyclic Graphs\n")
@@ -201,7 +214,7 @@ def main():
                     dag.edit_nodes()
                 elif choice == 3:
                     # Placeholder for add nodes functionality
-                    print("Add nodes functionality not implemented yet.")
+                    dag.add_node_ui()
                 elif choice == 4:
                     # Placeholder for delete nodes functionality
                     print("Delete nodes functionality not implemented yet.")
