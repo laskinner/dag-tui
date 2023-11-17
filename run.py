@@ -190,6 +190,34 @@ class DAG:
         self.add_node(node_id, title=title, description=description)
         print(f"Node {node_id} added successfully.")
 
+    def delete_node(self, node_id):
+        """
+        Delete a node from the DAG.
+
+        Args:
+            node_id: The identifier of the node to delete.
+        """
+        nodes = self.nodes_sheet.get_all_records()
+        row_index = next((i for i, node in enumerate(nodes, start=2) if str(node['node_id']) == str(node_id)), None)
+
+        if not row_index:
+            print(f"No node found with ID {node_id}")
+            return
+
+        # Delete the node
+        self.nodes_sheet.delete_rows(row_index)
+        print(f"Node {node_id} deleted successfully.")
+
+    def delete_node_ui(self):
+        """
+        Interface for deleting a node from the DAG.
+        """
+        node_id = input("\nEnter the ID of the node you wish to delete (or 'exit' to go back): ")
+        if node_id.lower() == 'exit':
+            return
+
+        self.delete_node(node_id)
+
 def main():
     print()
     print("Welcome to DagTui -- A Terminal User Interface for Directed Acyclic Graphs\n")
@@ -210,14 +238,11 @@ def main():
                 if choice == 1:
                     dag.visualize()
                 elif choice == 2:
-                    # Placeholder for edit nodes functionality
                     dag.edit_nodes()
                 elif choice == 3:
-                    # Placeholder for add nodes functionality
                     dag.add_node_ui()
                 elif choice == 4:
-                    # Placeholder for delete nodes functionality
-                    print("Delete nodes functionality not implemented yet.")
+                    dag.delete_node_ui()
                 elif choice == 5:
                     print("Exiting program.")
                     break
