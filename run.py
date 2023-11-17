@@ -124,9 +124,6 @@ class DAG:
 
             print(f"{node_id:<{id_width}}{title:<{title_width}}{description:<{desc_width}}{caused_by:<{caused_by_width}}{causes:<{causes_width}}")
 
-        # Placeholder for further edit functionality
-        print("\nEdit functionality to be implemented.")
-
         # Identify and display orphan nodes
         print("Orphaned nodes:")
         orphan_nodes = [node for node in nodes if not any(edge['causedBy'] == node['node_id'] or edge['causes'] == node['node_id'] for edge in edges)]
