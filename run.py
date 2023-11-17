@@ -40,7 +40,7 @@ class DAG:
             return
 
         # Add edge to the edges sheet
-        self.edges_sheet.append_row([f'{causedBy}-{causes}', causedBy, causes])
+        self.edges_sheet.append_row([f'{str(causedBy)}-{str(causes)}', str(causedBy), str(causes)])
 
     def visualize(self):
         # Check if the nodes worksheet is empty
@@ -75,11 +75,11 @@ class DAG:
     def edit_nodes(self):
         nodes = self.nodes_sheet.get_all_records()
         edges = self.edges_sheet.get_all_records()
-
+        
         print("\nNodes:")
         print(f"{'ID':<10}{'Title':<20}{'Description':<30}{'Caused By':<20}{'Causes':<20}")
         for node in nodes:
-            node_id = node['node_id']
+            node_id = str(node['node_id']) # Convert node_id to a string
             title = node['title']
             description = node['description']
 
