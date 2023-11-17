@@ -96,7 +96,6 @@ class DAG:
 
             print()
 
-
     def update_node(self, node_id, title=None, description=None):
         """
         Update the details of a specific node.
@@ -122,9 +121,9 @@ class DAG:
             self.nodes_sheet.update(range_name=f'C{row_index}', values=[[description]])
         print(f"Node {node_id} updated successfully.")
 
-    def edit_nodes(self):
+    def print_nodes(self):
         """
-        Provide an interface for editing nodes in the DAG.
+        Print the nodes in a formatted table.
         """
         nodes = self.nodes_sheet.get_all_records()
         edges = self.edges_sheet.get_all_records()
@@ -165,6 +164,12 @@ class DAG:
             print("All nodes are currently associated in graph.")
 
         print()
+
+    def edit_nodes(self):
+        """
+        Provide an interface for editing nodes in the DAG.
+        """
+        self.print_nodes()
 
         node_id_to_edit = input("\nEnter the ID of the node you wish to edit (or 'exit' to go back): ")
         if node_id_to_edit.lower() == 'exit':
@@ -212,6 +217,7 @@ class DAG:
         """
         Interface for deleting a node from the DAG.
         """
+        self.print_nodes()
         node_id = input("\nEnter the ID of the node you wish to delete (or 'exit' to go back): ")
         if node_id.lower() == 'exit':
             return
