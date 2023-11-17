@@ -76,18 +76,31 @@ class DAG:
         nodes = self.nodes_sheet.get_all_records()
         edges = self.edges_sheet.get_all_records()
         
-        print("\nNodes:")
-        print(f"{'ID':<10}{'Title':<20}{'Description':<30}{'Caused By':<20}{'Causes':<20}")
-        for node in nodes:
-            node_id = str(node['node_id']) # Convert node_id to a string
-            title = node['title']
-            description = node['description']
+    # Define the width of each column
+        id_width = 10
+        title_width = 20
+        desc_width = 35
+        caused_by_width = 20
+        causes_width = 20
+        total_width = id_width + title_width + desc_width + caused_by_width + causes_width
 
-            # Find edges related to this node
+        print("\nNodes:")
+        print(f"{'ID':<{id_width}}{'Title':<{title_width}}{'Description':<{desc_width}}{'Caused By (ID)':<{caused_by_width}}{'Causes (ID)':<{causes_width}}")
+        
+        # Print the horizontal ruler
+        print('-' * total_width)
+
+        for node in nodes:
+            node_id = str(node['node_id'])
+            title = node['title']
+            description = (node['description'][:27] + '...') if len(node['description']) > 27 else node['description']
             caused_by = ', '.join([str(edge['causedBy']) for edge in edges if str(edge['causes']) == node_id])
             causes = ', '.join([str(edge['causes']) for edge in edges if str(edge['causedBy']) == node_id])
 
-            print(f"{node_id:<10}{title:<20}{description:<30}{caused_by:<20}{causes:<20}")
+            if len(description) > 30:
+                description = description[:25] + '... '  # Truncate and add ellipsis
+
+            print(f"{node_id:<{id_width}}{title:<{title_width}}{description:<{desc_width}}{caused_by:<{caused_by_width}}{causes:<{causes_width}}")
 
         # Placeholder for further edit functionality
         print("\nEdit functionality to be implemented.")
