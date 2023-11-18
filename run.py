@@ -64,17 +64,19 @@ class DAG:
         if choice == 'no':
             self.edit_node_ui(node_id)
 
-    def add_node(self, title, description, causedBy=None, causes=None,
-                probability=None, severity=None):
+    def add_node(self):
         """
-        Add a new node to the DAG.
+        Interface for adding a new node to the DAG.
         """
-        node_id = self.generate_unique_id()
-        node_data = self.nodes_sheet.get_all_values()
+        print("\nAdd New Node")
+        title = input("Enter node title: ")
+        description = input("Enter node description: ")
+        causedBy = input("Enter Caused By (comma-separated IDs or leave blank): ")
+        causes = input("Enter Causes (comma-separated IDs or leave blank): ")
+        probability = input("Enter Probability (1-10 or leave blank): ")
+        severity = input("Enter Severity (1-10 or leave blank): ")
 
-        if any(node[0] == node_id for node in node_data[1:]):
-            print(f"Node {node_id} already exists.")
-            return
+        node_id = self.generate_unique_id()
 
         # Append new node data to the sheet
         self.nodes_sheet.append_row([
@@ -229,16 +231,6 @@ class DAG:
         print(f"\nUpdated Node {node_id_to_edit}:")
         self.display_node(node_id_to_edit)
 
-    def add_node_ui(self):
-        """Interface for adding a new node."""
-        print("\nAdd New Node")
-        node_id = input("Enter node ID: ")
-        title = input("Enter node title: ")
-        description = input("Enter node description: ")
-
-        self.add_node(node_id, title=title, description=description)
-        print(f"Node {node_id} added successfully.")
-
     def delete_node(self, node_id):
         """Delete a node from the DAG."""
         nodes = self.nodes_sheet.get_all_records()
@@ -281,7 +273,7 @@ def main():
             elif choice == 2:
                 dag.edit_nodes()
             elif choice == 3:
-                dag.add_node_ui()
+                dag.add_node()
             elif choice == 4:
                 dag.delete_node_ui()
             elif choice == 5:
