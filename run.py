@@ -4,8 +4,9 @@ import warnings
 
 # Suppress specific deprecation warnings from Google Sheets API
 warnings.filterwarnings(
-    "ignore", 
-    message=".*Method signature's arguments 'range_name' and 'values' will change their order.*"
+    "ignore",
+    message=(".*Method signature's arguments 'range_name' and 'values' "
+             "will change their order.*")
 )
 
 SCOPE = [
@@ -189,19 +190,20 @@ class DAG:
     def edit_nodes(self):
         """Interface for editing nodes."""
         self.print_nodes()
-        node_id_to_edit = input
-        ("\nEnter the ID of the node to edit (or 'exit'): ")
+        node_id_to_edit = input(
+            "\nEnter the ID of the node to edit (or 'exit'): "
+        )
         if node_id_to_edit.lower() == 'exit':
             return
 
-        new_title = input
-        ("Enter new title (or leave blank to keep unchanged): ")
-        new_description = input
-        ("Enter new description (or leave blank to keep unchanged): ")
+        new_title = input("Enter new title (or leave blank to keep unchanged): ")
+        new_description = input(
+            "Enter new description (or leave blank to keep unchanged): "
+        )
 
         self.update_node(
-            node_id_to_edit,
-            title=new_title if new_title else None,
+            node_id_to_edit, 
+            title=new_title if new_title else None, 
             description=new_description if new_description else None
         )
 
