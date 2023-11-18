@@ -1,6 +1,8 @@
 import gspread
 from google.oauth2.service_account import Credentials
 import warnings
+import time
+import random
 
 # Suppress specific deprecation warnings from Google Sheets API
 warnings.filterwarnings(
@@ -27,47 +29,61 @@ class DAG:
     """
 
     def __init__(self):
-        """Initialize with worksheets for nodes and edges."""
+        """Initialize with worksheets for nodes."""
         self.nodes_sheet = SHEET.worksheet('nodes')
-        self.edges_sheet = SHEET.worksheet('edges')
 
-    def add_node(self, node_id, **attributes):
+    def generate_unique_id(self):
+        """Generate a unique ID for nods and outcomes."""
+        timestamp = int(time.time())
+        random_part = random.randint(100, 999)
+        return f"{timestamp}{random_part}"
+
+
+    def display_node(self, node_id):
+        """Display a single node's data."""
+        nodes = self.nodes_sheet.get_all_records()
+        node = next((n for n in nodes if n['node_id'] == node_id), None)
+
+        if not node:
+            print(f"No node found with ID {node_id}")
+            return
+
+        # Display the node's details
+        print(f"\nNode ID: {node_id}")
+        print(f"Title: {node.get('title', 'N/A')}")
+        print(f"Description: {node.get('description', 'N/A')}")
+        print(f"Caused By: {node.get('causedBy', 'N/A')}")
+        print(f"Causes: {node.get('causes', 'N/A')}")
+        print(f"Probability: {node.get('probability', 'N/A')}")
+        print(f"Severity: {node.get('severity', 'N/A')}\n")
+
+    def confirm_or_edit_node(self, node_id):
+        """Ask the user to confirm or edit the node."""
+        self.display_node(node_id)
+        choice = input("Is this information correct? (yes/no): ").lower()
+        if choice == 'no':
+            self.edit_node_ui(node_id)
+
+    def add_node(self, title, description, causedBy=None, causes=None,
+                probability=None, severity=None):
         """
         Add a new node to the DAG.
-
-        Args:
-            node_id: Identifier for the node.
-            **attributes: Node attributes (title, description, etc.).
         """
+        node_id = self.generate_unique_id()
         node_data = self.nodes_sheet.get_all_values()
 
         if any(node[0] == node_id for node in node_data[1:]):
             print(f"Node {node_id} already exists.")
             return
 
-        self.nodes_sheet.append_row(
-            [node_id, attributes.get('title', ''),
-                attributes.get('description', '')]
-        )
-
-    def add_edge(self, causedBy, causes):
-        """
-        Add a new edge to the DAG.
-
-        Args:
-            causedBy: Node causing the edge.
-            causes: Node caused by the edge.
-        """
-        edge_data = self.edges_sheet.get_all_values()
-
-        if any(edge[1] == causedBy and edge[2]
-                == causes for edge in edge_data[1:]):
-            print(f"Edge from {causedBy} to {causes} already exists.")
-        return
-
-        self.edges_sheet.append_row(
-            [f'{str(causedBy)}-{str(causes)}', str(causedBy), str(causes)]
-        )
+        # Append new node data to the sheet
+        self.nodes_sheet.append_row([
+            node_id, title, description,
+            causedBy or '', causes or '',
+            probability or '', severity or ''
+        ])
+        print(f"Node {node_id} added. Please confirm the details:")
+        self.confirm_or_edit_node(node_id)
 
     def visualize(self):
         """Visualize the DAG by printing nodes and their relationships."""
@@ -75,29 +91,28 @@ class DAG:
             print("No nodes to visualize.")
             return
 
-        if not self.edges_sheet.get_all_values():
-            print("No edges to visualize.")
-            return
-
         nodes = self.nodes_sheet.get_all_records()
-        edges = self.edges_sheet.get_all_records()
 
         for node in nodes:
             print(f"Node {node['node_id']} - {node['title']}")
             print(f"  Description: {node['description']}")
-            has_edges = False
 
-            for edge in edges:
-                if edge['causedBy'] == node['node_id']:
-                    print(f"    -> Causes: {edge['causes']}")
-                    has_edges = True
+            # Display the 'causedBy' relationships
+            if node.get('causedBy'):
+                print(f"  Caused By: {node['causedBy']}")
+            else:
+                print("  [No incoming edges]")
 
-            if not has_edges:
-                print("    [No outgoing edges]")
+            # Display the 'causes' relationships
+            if node.get('causes'):
+                print(f"  Causes: {node['causes']}")
+            else:
+                print("  [No outgoing edges]")
 
             print()
 
-    def update_node(self, node_id, title=None, description=None):
+    def update_node(self, node_id, title=None, description=None, 
+                    causedBy=None, causes=None, probability=None, severity=None):
         """
         Update the details of a specific node.
 
@@ -105,28 +120,39 @@ class DAG:
             node_id: Identifier of the node to update.
             title: (Optional) New title for the node.
             description: (Optional) New description for the node.
+            causedBy: (Optional) Node IDs that cause this node.
+            causes: (Optional) Node IDs that are caused by this node.
+            probability: (Optional) Probability of the node.
+            severity: (Optional) Severity of the node.
         """
         nodes = self.nodes_sheet.get_all_records()
         row_index = next(
             (i for i, node in enumerate(nodes, start=2)
-             if str(node['node_id']) == str(node_id)), None)
+            if str(node['node_id']) == str(node_id)), None)
 
         if not row_index:
             print(f"No node found with ID {node_id}")
             return
 
+        # Update each attribute if it's provided
         if title is not None:
-            self.nodes_sheet.update(
-                range_name=f'B{row_index}', values=[[title]])
+            self.nodes_sheet.update(f'B{row_index}', [[title]])
         if description is not None:
-            self.nodes_sheet.update(
-                range_name=f'C{row_index}', values=[[description]])
+            self.nodes_sheet.update(f'C{row_index}', [[description]])
+        if causedBy is not None:
+            self.nodes_sheet.update(f'D{row_index}', [[causedBy]])
+        if causes is not None:
+            self.nodes_sheet.update(f'E{row_index}', [[causes]])
+        if probability is not None:
+            self.nodes_sheet.update(f'F{row_index}', [[probability]])
+        if severity is not None:
+            self.nodes_sheet.update(f'G{row_index}', [[severity]])
+
         print(f"Node {node_id} updated successfully.")
 
     def print_nodes(self):
         """Print nodes in a formatted table."""
         nodes = self.nodes_sheet.get_all_records()
-        edges = self.edges_sheet.get_all_records()
 
         id_width = 10
         title_width = 20
@@ -137,10 +163,10 @@ class DAG:
             causes_width
 
         header = (f"{'ID':<{id_width}}"
-                  f"{'Title':<{title_width}}"
-                  f"{'Description':<{desc_width}}"
-                  f"{'Caused By (ID)':<{caused_by_width}}"
-                  f"{'Causes (ID)':<{causes_width}}")
+                f"{'Title':<{title_width}}"
+                f"{'Description':<{desc_width}}"
+                f"{'Caused By (ID)':<{caused_by_width}}"
+                f"{'Causes (ID)':<{causes_width}}")
 
         print("\nNodes:")
         print(header)
@@ -151,18 +177,8 @@ class DAG:
             title = node['title']
             description = (node['description'][:27] + '...') \
                 if len(node['description']) > 27 else node['description']
-
-            caused_by_list = [
-                str(edge['causedBy']) for edge in edges
-                if str(edge['causes']) == node_id
-            ]
-            causes_list = [
-                str(edge['causes']) for edge in edges
-                if str(edge['causedBy']) == node_id
-            ]
-
-            caused_by = ', '.join(caused_by_list)
-            causes = ', '.join(causes_list)
+            caused_by = node.get('causedBy', 'N/A')
+            causes = node.get('causes', 'N/A')
 
             if len(description) > 30:
                 description = description[:25] + '... '
@@ -175,14 +191,12 @@ class DAG:
                 f"{causes:<{causes_width}}"
             )
 
+        # Identify and display orphan nodes
         print("Orphaned nodes:")
-        orphan_nodes = [node for node in nodes if not any(edge['causedBy'] ==
-                        node['node_id'] or edge['causes'] == node['node_id']
-            for edge in edges)]
+        orphan_nodes = [n for n in nodes if not n.get('causedBy') and not n.get('causes')]
         if orphan_nodes:
             for orphan in orphan_nodes:
-                print(f"{orphan['node_id']} - {orphan['title']}: " +
-                    f"{orphan['description']}")
+                print(f"{orphan['node_id']} - {orphan['title']}: {orphan['description']}")
         else:
             print("All nodes are currently associated in graph.")
         print()
@@ -196,16 +210,25 @@ class DAG:
         if node_id_to_edit.lower() == 'exit':
             return
 
-        new_title = input("Enter new title (or leave blank to keep unchanged): ")
-        new_description = input(
-            "Enter new description (or leave blank to keep unchanged): "
-        )
+        # Get the current node details for comparison
+        nodes = self.nodes_sheet.get_all_records()
+        node = next((n for n in nodes if n['node_id'] == node_id_to_edit), None)
 
-        self.update_node(
-            node_id_to_edit, 
-            title=new_title if new_title else None, 
-            description=new_description if new_description else None
-        )
+        if not node:
+            print(f"No node found with ID {node_id_to_edit}")
+            return
+
+        print("Enter new values (leave blank to keep unchanged):")
+        new_title = input(f"New Title [{node.get('title', '')}]: ") or node['title']
+        new_description = input(f"New Description [{node.get('description', '')}]: ") or node['description']
+        new_causedBy = input(f"New Caused By [{node.get('causedBy', '')}]: ") or node.get('causedBy', '')
+        new_causes = input(f"New Causes [{node.get('causes', '')}]: ") or node.get('causes', '')
+        new_probability = input(f"New Probability [{node.get('probability', '')}]: ") or node.get('probability', '')
+        new_severity = input(f"New Severity [{node.get('severity', '')}]: ") or node.get('severity', '')
+
+        self.update_node(node_id_to_edit, new_title, new_description, new_causedBy, new_causes, new_probability, new_severity)
+        print(f"\nUpdated Node {node_id_to_edit}:")
+        self.display_node(node_id_to_edit)
 
     def add_node_ui(self):
         """Interface for adding a new node."""
