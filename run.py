@@ -100,17 +100,21 @@ class DAG:
         """
         Update the outcomes caused by a node.
         """
-        outcomes_sheet = SHEET.worksheet('outcomes')
-        outcomes = outcomes_sheet.get_all_records()
+        outcomes = self.outcomes_sheet.get_all_records()
 
         # Split the causes and iterate through each ID
         for outcome_id in causes.split(','):
-            # Find the outcome and update its 'causedBy' field
+            outcome_id = outcome_id.strip()
+            if not outcome_id:
+                continue
+
             for i, outcome in enumerate(outcomes, start=2):
-                if str(outcome['outcome_id']).strip() == outcome_id.strip():
-                    current_causedBy = outcome.get('causedBy', '')
+                if str(outcome['outcome_id']).strip() == outcome_id:
+                    current_causedBy = outcome.get('causedBy', '').strip()
                     updated_causedBy = f"{current_causedBy},{node_id}" if current_causedBy else node_id
-                    outcomes_sheet.update(f'D{i}', [[updated_causedBy]])
+                    updated_causedBy = ', '.join(filter(None, updated_causedBy.split(',')))  # Ensure proper separation
+                    self.outcomes_sheet.update(f'D{i}', [[updated_causedBy]])
+                    print(f"Updated causedBy for outcome ID {outcome_id} with node ID {node_id}")
                     break
 
     def visualize(self):
@@ -324,51 +328,77 @@ class DAG:
         print(f"Severity: {outcome.get('severity', 'N/A')}\n")
 
     def calculate_outcome_probabilities_and_severities(self):
-        outcomes_sheet = SHEET.worksheet('outcomes')
-        outcomes = outcomes_sheet.get_all_records()
+        print("Calculating outcome probabilities and severities...")
+        outcomes = self.outcomes_sheet.get_all_records()
         nodes = self.nodes_sheet.get_all_records()
 
+        if not outcomes:
+            print("No outcomes found.")
+            return
+
         for i, outcome in enumerate(outcomes, start=2):
-            # Convert causedBy to string before splitting
             causedBy_ids = str(outcome.get('causedBy', '')).split(',')
+            if not causedBy_ids:
+                print(f"No 'causedBy' data for outcome ID {outcome['outcome_id']}")
+                continue
+
+            print(f"Processing outcome ID {outcome['outcome_id']} with causedBy IDs: {causedBy_ids}")
+
             total_probability, total_severity, count = 0, 0, 0
 
             for node_id in causedBy_ids:
-                node = next((n for n in nodes if str(n['node_id']) == node_id.strip()), None)
+                node_id = node_id.strip()
+                if not node_id:
+                    continue
+
+                node = next((n for n in nodes if str(n['node_id']) == node_id), None)
                 if node:
-                    total_probability += int(node.get('probability', 0))
-                    total_severity = max(total_severity, int(node.get('severity', 0)))
+                    node_probability = int(node.get('probability', 0))
+                    node_severity = int(node.get('severity', 0))
+                    total_probability += node_probability
+                    total_severity = max(total_severity, node_severity)
                     count += 1
+                    print(f"Node ID {node_id} contributes with probability {node_probability} and severity {node_severity}")
+                else:
+                    print(f"Node ID {node_id} not found in nodes")
 
             if count > 0:
                 average_probability = total_probability / count
-                outcomes_sheet.update(f'E{i}', [[average_probability]])
-                outcomes_sheet.update(f'F{i}', [[total_severity]])
+                self.outcomes_sheet.update(f'E{i}', [[average_probability]])
+                self.outcomes_sheet.update(f'F{i}', [[total_severity]])
 
-        print("Outcome probabilities and severities updated.")
+                print(f"Updating outcome ID {outcome['outcome_id']} with probability {average_probability} and severity {total_severity}")
+
+        print("Outcome probabilities and severities update complete.")
 
 def main():
     print("\nWelcome to DagTui - A Terminal UI for Directed Acyclic Graphs\n")
     dag = DAG()
     while True:
         print("\nWhat would you like to do?")
-        print("1. View graph (default view)")
-        print("2. Edit nodes")
-        print("3. Add nodes")
-        print("4. Delete nodes")
-        print("5. Exit")
+        print("1. View graph (verbose view)")
+        print("2. View graph (graphical view)")
+        print("3. Edit nodes")
+        print("4. Add nodes")
+        print("5. Add outcomes")
+        print("6. Delete nodes")
+        print("7. Exit")
 
         try:
             choice = int(input("Enter your choice (1-5): "))
             if choice == 1:
                 dag.visualize()
-            elif choice == 2:
-                dag.edit_nodes()
+            if choice == 2:
+                dag.graph()
             elif choice == 3:
-                dag.add_node()
+                dag.edit_nodes()
             elif choice == 4:
-                dag.delete_node_ui()
+                dag.add_node()
             elif choice == 5:
+                dag.add_outcome()
+            elif choice == 6:
+                dag.delete_node_ui()
+            elif choice == 7:
                 print("Exiting program.")
                 break
             else:
