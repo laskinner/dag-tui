@@ -85,8 +85,30 @@ class DAG:
             causedBy or '', causes or '',
             probability or '', severity or ''
         ])
+        
+        # Update outcomes if the node causes any
+        if causes:
+            self.update_outcomes(causes, node_id)
+
         print(f"Node {node_id} added. Please confirm the details:")
         self.confirm_or_edit_node(node_id)
+
+    def update_outcomes(self, causes, node_id):
+        """
+        Update the outcomes caused by a node.
+        """
+        outcomes_sheet = SHEET.worksheet('outcomes')
+        outcomes = outcomes_sheet.get_all_records()
+
+        # Split the causes and iterate through each ID
+        for outcome_id in causes.split(','):
+            # Find the outcome and update its 'causedBy' field
+            for i, outcome in enumerate(outcomes, start=2):
+                if str(outcome['outcome_id']).strip() == outcome_id.strip():
+                    current_causedBy = outcome.get('causedBy', '')
+                    updated_causedBy = f"{current_causedBy},{node_id}" if current_causedBy else node_id
+                    outcomes_sheet.update(f'D{i}', [[updated_causedBy]])
+                    break
 
     def visualize(self):
         """Visualize the DAG by printing nodes and their relationships."""
