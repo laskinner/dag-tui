@@ -92,6 +92,9 @@ class DAG:
 
         print(f"Node {node_id} added. Please confirm the details:")
         self.confirm_or_edit_node(node_id)
+        
+        # Updated probabilities and severities if necessary
+        self.calculate_outcome_probabilities_and_severities()
 
     def update_outcomes(self, causes, node_id):
         """
@@ -182,6 +185,9 @@ class DAG:
             self.nodes_sheet.update(f'G{row_index}', [[severity]])
 
         print(f"Node {node_id} updated successfully.")
+
+        # Update probabilities and severities if necessary
+        self.calculate_outcome_probabilities_and_severities()
 
     def print_nodes(self):
         """Print nodes in a formatted table."""
@@ -316,6 +322,30 @@ class DAG:
         print(f"Caused By: {outcome.get('causedBy', 'N/A')}")
         print(f"Probability: {outcome.get('probability', 'N/A')}")
         print(f"Severity: {outcome.get('severity', 'N/A')}\n")
+
+    def calculate_outcome_probabilities_and_severities(self):
+        outcomes_sheet = SHEET.worksheet('outcomes')
+        outcomes = outcomes_sheet.get_all_records()
+        nodes = self.nodes_sheet.get_all_records()
+
+        for i, outcome in enumerate(outcomes, start=2):
+            # Convert causedBy to string before splitting
+            causedBy_ids = str(outcome.get('causedBy', '')).split(',')
+            total_probability, total_severity, count = 0, 0, 0
+
+            for node_id in causedBy_ids:
+                node = next((n for n in nodes if str(n['node_id']) == node_id.strip()), None)
+                if node:
+                    total_probability += int(node.get('probability', 0))
+                    total_severity = max(total_severity, int(node.get('severity', 0)))
+                    count += 1
+
+            if count > 0:
+                average_probability = total_probability / count
+                outcomes_sheet.update(f'E{i}', [[average_probability]])
+                outcomes_sheet.update(f'F{i}', [[total_severity]])
+
+        print("Outcome probabilities and severities updated.")
 
 def main():
     print("\nWelcome to DagTui - A Terminal UI for Directed Acyclic Graphs\n")
