@@ -31,6 +31,7 @@ class DAG:
     def __init__(self):
         """Initialize with worksheets for nodes."""
         self.nodes_sheet = SHEET.worksheet('nodes')
+        self.outcomes_sheet = SHEET.worksheet('outcomes')
 
     def generate_unique_id(self):
         """Generate a unique ID for nods and outcomes."""
@@ -112,6 +113,14 @@ class DAG:
                 print("  [No outgoing edges]")
 
             print()
+
+        print("\nOutcomes:")
+        outcomes = self.outcomes_sheet.get_all_records()
+        if not outcomes:
+            print("No outcomes to display.")
+        else:
+            for outcome in outcomes:
+                self.display_outcome(str(outcome['outcome_id']))
 
     def update_node(self, node_id, title=None, description=None, 
                     causedBy=None, causes=None, probability=None, severity=None):
@@ -254,6 +263,37 @@ class DAG:
 
         self.delete_node(node_id)
 
+    def add_outcome(self):
+        """Add a new outcome to the DAG."""
+        print("\nAdd New Outcome")
+        title = input("Enter outcome title: ")
+        description = input("Enter outcome description: ")
+        causedBy = input("Enter Caused By (comma-separated node IDs): ")
+        probability = input("Enter Probability (1-10): ")
+        severity = input("Enter Severity (1-10): ")
+
+        outcome_id = self.generate_unique_id()
+
+        self.outcomes_sheet.append_row([
+            outcome_id, title, description, causedBy, probability, severity
+        ])
+        print(f"Outcome {outcome_id} added successfully.")
+
+    def display_outcome(self, outcome_id):
+        """Display a single outcome's details."""
+        outcomes = self.outcomes_sheet.get_all_records()
+        outcome = next((o for o in outcomes if str(o['outcome_id']) == str(outcome_id)), None)
+
+        if not outcome:
+            print(f"No outcome found with ID {outcome_id}")
+            return
+
+        print(f"\nOutcome ID: {outcome_id}")
+        print(f"Title: {outcome.get('title', 'N/A')}")
+        print(f"Description: {outcome.get('description', 'N/A')}")
+        print(f"Caused By: {outcome.get('causedBy', 'N/A')}")
+        print(f"Probability: {outcome.get('probability', 'N/A')}")
+        print(f"Severity: {outcome.get('severity', 'N/A')}\n")
 
 def main():
     print("\nWelcome to DagTui - A Terminal UI for Directed Acyclic Graphs\n")
