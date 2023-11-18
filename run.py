@@ -42,7 +42,7 @@ class DAG:
     def display_node(self, node_id):
         """Display a single node's data."""
         nodes = self.nodes_sheet.get_all_records()
-        node = next((n for n in nodes if n['node_id'] == node_id), None)
+        node = next((n for n in nodes if str(n['node_id']) == node_id), None)
 
         if not node:
             print(f"No node found with ID {node_id}")
@@ -204,27 +204,26 @@ class DAG:
     def edit_nodes(self):
         """Interface for editing nodes."""
         self.print_nodes()
-        node_id_to_edit = input(
-            "\nEnter the ID of the node to edit (or 'exit'): "
-        )
+        node_id_to_edit = input("\nEnter the ID of the node to edit (or 'exit'): ").strip()
+
         if node_id_to_edit.lower() == 'exit':
             return
 
-        # Get the current node details for comparison
+        # Fetch all nodes and convert node_ids to string for comparison
         nodes = self.nodes_sheet.get_all_records()
-        node = next((n for n in nodes if n['node_id'] == node_id_to_edit), None)
+        node_to_edit = next((node for node in nodes if str(node['node_id']) == node_id_to_edit), None)
 
-        if not node:
+        if not node_to_edit:
             print(f"No node found with ID {node_id_to_edit}")
             return
 
         print("Enter new values (leave blank to keep unchanged):")
-        new_title = input(f"New Title [{node.get('title', '')}]: ") or node['title']
-        new_description = input(f"New Description [{node.get('description', '')}]: ") or node['description']
-        new_causedBy = input(f"New Caused By [{node.get('causedBy', '')}]: ") or node.get('causedBy', '')
-        new_causes = input(f"New Causes [{node.get('causes', '')}]: ") or node.get('causes', '')
-        new_probability = input(f"New Probability [{node.get('probability', '')}]: ") or node.get('probability', '')
-        new_severity = input(f"New Severity [{node.get('severity', '')}]: ") or node.get('severity', '')
+        new_title = input(f"New Title [{node_to_edit.get('title', '')}]: ") or node_to_edit['title']
+        new_description = input(f"New Description [{node_to_edit.get('description', '')}]: ") or node_to_edit['description']
+        new_causedBy = input(f"New Caused By [{node_to_edit.get('causedBy', '')}]: ") or node_to_edit.get('causedBy', '')
+        new_causes = input(f"New Causes [{node_to_edit.get('causes', '')}]: ") or node_to_edit.get('causes', '')
+        new_probability = input(f"New Probability [{node_to_edit.get('probability', '')}]: ") or node_to_edit.get('probability', '')
+        new_severity = input(f"New Severity [{node_to_edit.get('severity', '')}]: ") or node_to_edit.get('severity', '')
 
         self.update_node(node_id_to_edit, new_title, new_description, new_causedBy, new_causes, new_probability, new_severity)
         print(f"\nUpdated Node {node_id_to_edit}:")
