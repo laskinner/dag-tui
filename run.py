@@ -328,48 +328,43 @@ class DAG:
         print(f"Severity: {outcome.get('severity', 'N/A')}\n")
 
     def calculate_outcome_probabilities_and_severities(self):
-        print("Calculating outcome probabilities and severities...")
-        outcomes = self.outcomes_sheet.get_all_records()
+        print("Calculating outcome probabilities and severities...\n")
+        outcomes_sheet = SHEET.worksheet('outcomes')
+        outcomes = outcomes_sheet.get_all_records()
         nodes = self.nodes_sheet.get_all_records()
 
         if not outcomes:
-            print("No outcomes found.")
+            print("No outcomes found.\n")
             return
 
         for i, outcome in enumerate(outcomes, start=2):
-            causedBy_ids = str(outcome.get('causedBy', '')).split(',')
-            if not causedBy_ids:
-                print(f"No 'causedBy' data for outcome ID {outcome['outcome_id']}")
-                continue
-
-            print(f"Processing outcome ID {outcome['outcome_id']} with causedBy IDs: {causedBy_ids}")
-
+            # Split causedBy by comma and strip spaces
+            causedBy_ids = [id.strip() for id in str(outcome.get('causedBy', '')).split(',')]
+            print(f"Processing outcome ID {outcome['outcome_id']} with causedBy IDs: {causedBy_ids}\n")
             total_probability, total_severity, count = 0, 0, 0
 
             for node_id in causedBy_ids:
-                node_id = node_id.strip()
-                if not node_id:
-                    continue
+                if node_id:  # Check if node_id is not empty
+                    node = next((n for n in nodes if str(n['node_id']) == node_id), None)
+                    if node:
+                        node_probability = int(node.get('probability', 0))
+                        node_severity = int(node.get('severity', 0))
 
-                node = next((n for n in nodes if str(n['node_id']) == node_id), None)
-                if node:
-                    node_probability = int(node.get('probability', 0))
-                    node_severity = int(node.get('severity', 0))
-                    total_probability += node_probability
-                    total_severity = max(total_severity, node_severity)
-                    count += 1
-                    print(f"Node ID {node_id} contributes with probability {node_probability} and severity {node_severity}")
-                else:
-                    print(f"Node ID {node_id} not found in nodes")
+                        total_probability += int(node.get('probability', 0))
+                        total_severity = max(total_severity, int(node.get('severity', 0)))
+                        count += 1
+                        print(f"Node ID {node_id} contributes with {node_probability}% probability and severity of {node_severity}")
+                    else:
+                        print(f"Node ID {node_id} not found in nodes")
 
             if count > 0:
                 average_probability = total_probability / count
-                self.outcomes_sheet.update(f'E{i}', [[average_probability]])
-                self.outcomes_sheet.update(f'F{i}', [[total_severity]])
+                outcomes_sheet.update(f'E{i}', [[average_probability]])
+                outcomes_sheet.update(f'F{i}', [[total_severity]])
 
-                print(f"Updating outcome ID {outcome['outcome_id']} with probability {average_probability} and severity {total_severity}")
+                print(f"Updating outcome ID {outcome['outcome_id']} with probability {average_probability} and severity {total_severity}\n")
 
-        print("Outcome probabilities and severities update complete.")
+        print("Outcome probabilities and severities updated.")
 
 def main():
     print("\nWelcome to DagTui - A Terminal UI for Directed Acyclic Graphs\n")
