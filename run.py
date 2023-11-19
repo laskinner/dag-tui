@@ -144,7 +144,7 @@ class DAG:
         nodes = self.nodes_sheet.get_all_records()
 
         for node in nodes:
-            print(f"Node {node['node_id']} - {node['title']}")
+            print(f"\nNode: {node['title']}")
             print(f"  Description: {node['description']}")
 
             # Display the 'causedBy' relationships
@@ -216,16 +216,14 @@ class DAG:
         """Print nodes in a formatted table."""
         nodes = self.nodes_sheet.get_all_records()
 
-        id_width = 10
-        title_width = 20
+        title_width = 15 
         desc_width = 35
-        caused_by_width = 20
-        causes_width = 20
-        total_width = id_width + title_width + desc_width + caused_by_width + \
+        caused_by_width = 15 
+        causes_width = 15 
+        total_width = title_width + desc_width + caused_by_width + \
             causes_width
 
-        header = (f"{'ID':<{id_width}}"
-                  f"{'Title':<{title_width}}"
+        header = (f"{'Title':<{title_width}}"
                   f"{'Description':<{desc_width}}"
                   f"{'Caused By (ID)':<{caused_by_width}}"
                   f"{'Causes (ID)':<{causes_width}}")
@@ -246,7 +244,6 @@ class DAG:
                 description = description[:25] + '... '
 
             print(
-                f"{node_id:<{id_width}}"
                 f"{title:<{title_width}}"
                 f"{description:<{desc_width}}"
                 f"{caused_by:<{caused_by_width}}"
@@ -360,7 +357,6 @@ class DAG:
             print(f"No outcome found with ID {outcome_id}")
             return
 
-        print(f"\nOutcome ID: {outcome_id}")
         print(f"Title: {outcome.get('title', 'N/A')}")
         print(f"Description: {outcome.get('description', 'N/A')}")
         print(f"Caused By: {outcome.get('causedBy', 'N/A')}")
@@ -459,7 +455,7 @@ def main():
     print("\nWelcome to DagTui - A Terminal UI for Directed Acyclic Graphs\n")
     dag = DAG()
     while True:
-        print("\nWhat would you like to do?")
+        print("\nWhat would you like to do?\n")
         print("1. View graph (verbose view)")
         print("2. View graph (graphical view)")
         print("3. Edit nodes")
@@ -469,7 +465,7 @@ def main():
         print("7. Exit")
 
         try:
-            choice = int(input("Enter your choice: "))
+            choice = int(input("\nEnter your choice: "))
             if choice == 1:
                 dag.visualize()
             if choice == 2:
