@@ -67,7 +67,7 @@ class DAG:
         self.display_node(node_id)
         choice = input("Is this information correct? (yes/no): ").lower()
         if choice == 'no':
-            self.edit_node_ui(node_id)
+            self.edit_nodes(node_id)
 
     def add_node(self):
         """
@@ -96,7 +96,9 @@ class DAG:
         if causes:
             self.update_outcomes(causes, node_id)
 
-        print(f"Node {node_id} added. Please confirm the details:")
+        print(f"\nCause ID {node_id} added: {title}. "
+              "\nPlease confirm the details:\n"
+              )
         self.confirm_or_edit_node(node_id)
 
         # Updated probabilities and severities if necessary
