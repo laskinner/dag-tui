@@ -44,7 +44,6 @@ class DAG:
         random_part = random.randint(100, 999)
         return f"{timestamp}{random_part}"
 
-
     def display_node(self, node_id):
         """Display a single node's data."""
         nodes = self.nodes_sheet.get_all_records()
@@ -74,10 +73,12 @@ class DAG:
         """
         Interface for adding a new node to the DAG.
         """
-        print("\nAdd New Node")
-        title = input("Enter node title: ")
-        description = input("Enter node description: ")
-        causedBy = input("Enter Caused By (comma-separated IDs or leave blank): ")
+        print("\nAdd New Cause")
+        title = input("Enter Cause title: ")
+        description = input("Enter Cause description: ")
+        causedBy = input(
+            "Enter Caused By (comma-separated IDs or leave blank): "
+            )
         causes = input("Enter Causes (comma-separated IDs or leave blank): ")
         probability = input("Enter Probability (1-100 or leave blank): ")
         severity = input("Enter Severity (1-10 or leave blank): ")
@@ -90,14 +91,14 @@ class DAG:
             causedBy or '', causes or '',
             probability or '', severity or ''
         ])
-        
+
         # Update outcomes if the node causes any
         if causes:
             self.update_outcomes(causes, node_id)
 
         print(f"Node {node_id} added. Please confirm the details:")
         self.confirm_or_edit_node(node_id)
-        
+
         # Updated probabilities and severities if necessary
         self.calculate_outcome_probabilities_and_severities()
 
@@ -116,10 +117,20 @@ class DAG:
             for i, outcome in enumerate(outcomes, start=2):
                 if str(outcome['outcome_id']).strip() == outcome_id:
                     current_causedBy = outcome.get('causedBy', '').strip()
-                    updated_causedBy = f"{current_causedBy},{node_id}" if current_causedBy else node_id
-                    updated_causedBy = ', '.join(filter(None, updated_causedBy.split(',')))  # Ensure proper separation
+                    updated_causedBy = (
+                        f"{current_causedBy},{node_id}"
+                        if current_causedBy else node_id
+                    )
+
+                    # Ensure proper separation
+                    updated_causedBy = (
+                        ', '.join(filter(None, updated_causedBy.split(',')))
+                    )
                     self.outcomes_sheet.update(f'D{i}', [[updated_causedBy]])
-                    print(f"Updated causedBy for outcome ID {outcome_id} with node ID {node_id}")
+                    print(
+                        f"Updated causedBy for outcome ID {outcome_id} "
+                        f"with node ID {node_id}"
+                    )
                     break
 
     def visualize(self):
@@ -156,8 +167,9 @@ class DAG:
             for outcome in outcomes:
                 self.display_outcome(str(outcome['outcome_id']))
 
-    def update_node(self, node_id, title=None, description=None, 
-                    causedBy=None, causes=None, probability=None, severity=None):
+    def update_node(self, node_id, title=None, description=None,
+                    causedBy=None, causes=None, probability=None,
+                    severity=None):
         """
         Update the details of a specific node.
 
@@ -173,7 +185,7 @@ class DAG:
         nodes = self.nodes_sheet.get_all_records()
         row_index = next(
             (i for i, node in enumerate(nodes, start=2)
-            if str(node['node_id']) == str(node_id)), None)
+                if str(node['node_id']) == str(node_id)), None)
 
         if not row_index:
             print(f"No node found with ID {node_id}")
@@ -211,10 +223,10 @@ class DAG:
             causes_width
 
         header = (f"{'ID':<{id_width}}"
-                f"{'Title':<{title_width}}"
-                f"{'Description':<{desc_width}}"
-                f"{'Caused By (ID)':<{caused_by_width}}"
-                f"{'Causes (ID)':<{causes_width}}")
+                  f"{'Title':<{title_width}}"
+                  f"{'Description':<{desc_width}}"
+                  f"{'Caused By (ID)':<{caused_by_width}}"
+                  f"{'Causes (ID)':<{causes_width}}")
 
         print("\nNodes:")
         print(header)
@@ -241,10 +253,14 @@ class DAG:
 
         # Identify and display orphan nodes
         print("Orphaned nodes:")
-        orphan_nodes = [n for n in nodes if not n.get('causedBy') and not n.get('causes')]
+        orphan_nodes = [n for n in nodes if not n.get('causedBy')
+                        and not n.get('causes')]
         if orphan_nodes:
             for orphan in orphan_nodes:
-                print(f"{orphan['node_id']} - {orphan['title']}: {orphan['description']}")
+                print(
+                    f"{orphan['node_id']} - {orphan['title']}: "
+                    f"{orphan['description']}"
+                )
         else:
             print("All nodes are currently associated in graph.")
         print()
@@ -252,28 +268,44 @@ class DAG:
     def edit_nodes(self):
         """Interface for editing nodes."""
         self.print_nodes()
-        node_id_to_edit = input("\nEnter the ID of the node to edit (or 'exit'): ").strip()
+        node_id_to_edit = input(
+                "\nEnter the ID of the node to edit (or 'exit'): ").strip()
 
         if node_id_to_edit.lower() == 'exit':
             return
 
         # Fetch all nodes and convert node_ids to string for comparison
         nodes = self.nodes_sheet.get_all_records()
-        node_to_edit = next((node for node in nodes if str(node['node_id']) == node_id_to_edit), None)
+        node_to_edit = next((node for node in nodes if str(node['node_id']) ==
+                            node_id_to_edit), None)
 
         if not node_to_edit:
             print(f"No node found with ID {node_id_to_edit}")
             return
 
         print("Enter new values (leave blank to keep unchanged):")
-        new_title = input(f"New Title [{node_to_edit.get('title', '')}]: ") or node_to_edit['title']
-        new_description = input(f"New Description [{node_to_edit.get('description', '')}]: ") or node_to_edit['description']
-        new_causedBy = input(f"New Caused By [{node_to_edit.get('causedBy', '')}]: ") or node_to_edit.get('causedBy', '')
-        new_causes = input(f"New Causes [{node_to_edit.get('causes', '')}]: ") or node_to_edit.get('causes', '')
-        new_probability = input(f"New Probability [{node_to_edit.get('probability', '')}]: ") or node_to_edit.get('probability', '')
-        new_severity = input(f"New Severity [{node_to_edit.get('severity', '')}]: ") or node_to_edit.get('severity', '')
+        new_title = input(
+            f"New Title [{node_to_edit.get('title', '')}]: "
+        ) or node_to_edit['title']
+        new_description = input(
+            f"New Description [{node_to_edit.get('description', '')}]: "
+        ) or node_to_edit['description']
+        new_causedBy = input(
+            f"New Caused By [{node_to_edit.get('causedBy', '')}]: "
+        ) or node_to_edit.get('causedBy', '')
+        new_causes = input(
+            f"New Causes [{node_to_edit.get('causes', '')}]: "
+        ) or node_to_edit.get('causes', '')
+        new_probability = input(
+            f"New Probability [{node_to_edit.get('probability', '')}]: "
+        ) or node_to_edit.get('probability', '')
+        new_severity = input(
+            f"New Severity [{node_to_edit.get('severity', '')}]: "
+        ) or node_to_edit.get('severity', '')
 
-        self.update_node(node_id_to_edit, new_title, new_description, new_causedBy, new_causes, new_probability, new_severity)
+        self.update_node(node_id_to_edit, new_title, new_description,
+                         new_causedBy, new_causes, new_probability,
+                         new_severity)
         print(f"\nUpdated Node {node_id_to_edit}:")
         self.display_node(node_id_to_edit)
 
@@ -319,7 +351,8 @@ class DAG:
     def display_outcome(self, outcome_id):
         """Display a single outcome's details."""
         outcomes = self.outcomes_sheet.get_all_records()
-        outcome = next((o for o in outcomes if str(o['outcome_id']) == str(outcome_id)), None)
+        outcome = next((o for o in outcomes if str(o['outcome_id']) ==
+                        str(outcome_id)), None)
 
         if not outcome:
             print(f"No outcome found with ID {outcome_id}")
@@ -344,21 +377,28 @@ class DAG:
 
         for i, outcome in enumerate(outcomes, start=2):
             # Split causedBy by comma and strip spaces
-            causedBy_ids = [id.strip() for id in str(outcome.get('causedBy', '')).split(',')]
-            print(f"Processing outcome ID {outcome['outcome_id']} with causedBy IDs: {causedBy_ids}\n")
+            causedBy_ids = [id.strip() for id in str(outcome.get(
+                'causedBy', '')).split(',')]
+            print(f"Processing outcome {outcome['title']} with causes...\n")
             total_probability, total_severity, count = 0, 0, 0
 
             for node_id in causedBy_ids:
                 if node_id:  # Check if node_id is not empty
-                    node = next((n for n in nodes if str(n['node_id']) == node_id), None)
+                    node = next((n for n in nodes if str(n['node_id']) ==
+                                node_id), None)
                     if node:
                         node_probability = int(node.get('probability', 0))
                         node_severity = int(node.get('severity', 0))
 
                         total_probability += int(node.get('probability', 0))
-                        total_severity = max(total_severity, int(node.get('severity', 0)))
+                        total_severity = max(total_severity,
+                                             int(node.get('severity', 0)))
                         count += 1
-                        print(f"Node ID {node_id} contributes with {node_probability}% probability and severity of {node_severity}")
+                        print(
+                            f"Node ID {node_id} contributes with "
+                            f"{node_probability}% probability and severity "
+                            f"of {node_severity}"
+                            )
                     else:
                         print(f"Node ID {node_id} not found in nodes")
 
@@ -367,7 +407,9 @@ class DAG:
                 outcomes_sheet.update(f'E{i}', [[average_probability]])
                 outcomes_sheet.update(f'F{i}', [[total_severity]])
 
-                print(f"Updating outcome ID {outcome['outcome_id']} with probability {average_probability} and severity {total_severity}\n")
+                print(f"Updating outcome ID {outcome['outcome_id']} with "
+                      f"probability {average_probability} and severity "
+                      f"{total_severity}\n")
 
         print("Outcome probabilities and severities updated.")
 
@@ -376,22 +418,30 @@ class DAG:
         outcomes = self.outcomes_sheet.get_all_records()
         print("Simplified Graph View:")
         print("------------------------------------------------------")
-        
+
         for node in nodes:
             node_title = node.get('title', 'N/A')
             node_probability = int(node.get('probability', 0))
             color = self.determine_color(node_probability)
 
-            causes_str = str(node.get('causes', ''))  # Ensure causes is treated as a string
+            # Ensure causes is treated as a string
+            causes_str = str(node.get('causes', ''))
             if causes_str:
                 causes_list = causes_str.split(',')
                 for cause in causes_list:
-                    outcome = next((o for o in outcomes if str(o['outcome_id']) == cause.strip()), None)
+                    outcome = next((o for o in outcomes if
+                                    str(o['outcome_id']) ==
+                                    cause.strip()), None)
                     if outcome:
                         outcome_title = outcome.get('title', 'N/A')
-                        outcome_probability = int(outcome.get('probability', 0))
-                        outcome_color = self.determine_color(outcome_probability)
-                        print(f"{color}{node_title}{self.RESET} | ====> | {outcome_color}{outcome_title}{self.RESET}")
+                        outcome_probability = int(
+                            outcome.get('probability', 0)
+                        )
+                        outcome_color = self.determine_color(
+                            outcome_probability
+                        )
+                        print(f"{color}{node_title}{self.RESET} | ====> "
+                              f"| {outcome_color}{outcome_title}{self.RESET}")
             print()
 
     def determine_color(self, probability):
@@ -401,6 +451,7 @@ class DAG:
             return self.YELLOW
         else:
             return self.RED
+
 
 def main():
     print("\nWelcome to DagTui - A Terminal UI for Directed Acyclic Graphs\n")
