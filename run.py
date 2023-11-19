@@ -27,6 +27,11 @@ class DAG:
     """Class to represent a Directed Acyclic Graph (DAG)
     and interact with Google Sheets.
     """
+    # Class constants for colors
+    GREEN = '\033[92m'  # Green text
+    YELLOW = '\033[93m'  # Yellow text
+    RED = '\033[91m'  # Red text
+    RESET = '\033[0m'  # Reset to default text color
 
     def __init__(self):
         """Initialize with worksheets for nodes."""
@@ -55,7 +60,7 @@ class DAG:
         print(f"Description: {node.get('description', 'N/A')}")
         print(f"Caused By: {node.get('causedBy', 'N/A')}")
         print(f"Causes: {node.get('causes', 'N/A')}")
-        print(f"Probability: {node.get('probability', 'N/A')}")
+        print(f"Probability: {node.get('probability', 'N/A')}%")
         print(f"Severity: {node.get('severity', 'N/A')}\n")
 
     def confirm_or_edit_node(self, node_id):
@@ -74,7 +79,7 @@ class DAG:
         description = input("Enter node description: ")
         causedBy = input("Enter Caused By (comma-separated IDs or leave blank): ")
         causes = input("Enter Causes (comma-separated IDs or leave blank): ")
-        probability = input("Enter Probability (1-10 or leave blank): ")
+        probability = input("Enter Probability (1-100 or leave blank): ")
         severity = input("Enter Severity (1-10 or leave blank): ")
 
         node_id = self.generate_unique_id()
@@ -297,11 +302,11 @@ class DAG:
 
     def add_outcome(self):
         """Add a new outcome to the DAG."""
-        print("\nAdd New Outcome")
+        print("\nAdd New Outcome\n")
         title = input("Enter outcome title: ")
         description = input("Enter outcome description: ")
         causedBy = input("Enter Caused By (comma-separated node IDs): ")
-        probability = input("Enter Probability (1-10): ")
+        probability = input("Enter Probability (1-100): ")
         severity = input("Enter Severity (1-10): ")
 
         outcome_id = self.generate_unique_id()
@@ -309,7 +314,7 @@ class DAG:
         self.outcomes_sheet.append_row([
             outcome_id, title, description, causedBy, probability, severity
         ])
-        print(f"Outcome {outcome_id} added successfully.")
+        print(f"\nOutcome {title} added successfully.\n")
 
     def display_outcome(self, outcome_id):
         """Display a single outcome's details."""
@@ -324,7 +329,7 @@ class DAG:
         print(f"Title: {outcome.get('title', 'N/A')}")
         print(f"Description: {outcome.get('description', 'N/A')}")
         print(f"Caused By: {outcome.get('causedBy', 'N/A')}")
-        print(f"Probability: {outcome.get('probability', 'N/A')}")
+        print(f"Probability: {outcome.get('probability', 'N/A')}%")
         print(f"Severity: {outcome.get('severity', 'N/A')}\n")
 
     def calculate_outcome_probabilities_and_severities(self):
@@ -366,6 +371,37 @@ class DAG:
 
         print("Outcome probabilities and severities updated.")
 
+    def visualize_simple_graph(self):
+        nodes = self.nodes_sheet.get_all_records()
+        outcomes = self.outcomes_sheet.get_all_records()
+        print("Simplified Graph View:")
+        print("------------------------------------------------------")
+        
+        for node in nodes:
+            node_title = node.get('title', 'N/A')
+            node_probability = int(node.get('probability', 0))
+            color = self.determine_color(node_probability)
+
+            causes_str = str(node.get('causes', ''))  # Ensure causes is treated as a string
+            if causes_str:
+                causes_list = causes_str.split(',')
+                for cause in causes_list:
+                    outcome = next((o for o in outcomes if str(o['outcome_id']) == cause.strip()), None)
+                    if outcome:
+                        outcome_title = outcome.get('title', 'N/A')
+                        outcome_probability = int(outcome.get('probability', 0))
+                        outcome_color = self.determine_color(outcome_probability)
+                        print(f"{color}{node_title}{self.RESET} | ====> | {outcome_color}{outcome_title}{self.RESET}")
+            print()
+
+    def determine_color(self, probability):
+        if probability < 30:
+            return self.GREEN
+        elif 30 <= probability <= 70:
+            return self.YELLOW
+        else:
+            return self.RED
+
 def main():
     print("\nWelcome to DagTui - A Terminal UI for Directed Acyclic Graphs\n")
     dag = DAG()
@@ -380,11 +416,11 @@ def main():
         print("7. Exit")
 
         try:
-            choice = int(input("Enter your choice (1-5): "))
+            choice = int(input("Enter your choice: "))
             if choice == 1:
                 dag.visualize()
             if choice == 2:
-                dag.graph()
+                dag.visualize_simple_graph()
             elif choice == 3:
                 dag.edit_nodes()
             elif choice == 4:
