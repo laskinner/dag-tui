@@ -40,8 +40,11 @@ class DAG:
 
     def generate_unique_id(self):
         """Generate a unique ID for nods and outcomes."""
-        timestamp = int(time.time())
-        random_part = random.randint(100, 999)
+        # Get the last two digits of the current timestamp
+        timestamp = int(time.time()) % 100
+        # Generate a random number between 10 and 99
+        random_part = random.randint(10, 99)
+        # Combine the two parts
         return f"{timestamp}{random_part}"
 
     def display_node(self, node_id):
@@ -143,6 +146,8 @@ class DAG:
 
         nodes = self.nodes_sheet.get_all_records()
 
+        print("\n\nCauses:")
+
         for node in nodes:
             print(f"\nNode: {node['title']}")
             print(f"  Description: {node['description']}")
@@ -161,7 +166,7 @@ class DAG:
 
             print()
 
-        print("\nOutcomes:")
+        print("\nOutcomes:\n")
         outcomes = self.outcomes_sheet.get_all_records()
         if not outcomes:
             print("No outcomes to display.")
@@ -358,10 +363,10 @@ class DAG:
             return
 
         print(f"Title: {outcome.get('title', 'N/A')}")
-        print(f"Description: {outcome.get('description', 'N/A')}")
-        print(f"Caused By: {outcome.get('causedBy', 'N/A')}")
-        print(f"Probability: {outcome.get('probability', 'N/A')}%")
-        print(f"Severity: {outcome.get('severity', 'N/A')}\n")
+        print(f"  Description: {outcome.get('description', 'N/A')}")
+        print(f"  Caused By: {outcome.get('causedBy', 'N/A')}")
+        print(f"  Probability: {outcome.get('probability', 'N/A')}%")
+        print(f"  Severity: {outcome.get('severity', 'N/A')}\n")
 
     def calculate_outcome_probabilities_and_severities(self):
         print("Calculating outcome probabilities and severities...\n")
