@@ -221,14 +221,16 @@ class DAG:
         """Print nodes in a formatted table."""
         nodes = self.nodes_sheet.get_all_records()
 
+        id_width = 5
         title_width = 15 
-        desc_width = 35
+        desc_width = 30
         caused_by_width = 15 
         causes_width = 15 
-        total_width = title_width + desc_width + caused_by_width + \
+        total_width = id_width + title_width + desc_width + caused_by_width + \
             causes_width
 
-        header = (f"{'Title':<{title_width}}"
+        header = (f"{'ID':<{id_width}}"
+                  f"{'Title':<{title_width}}"
                   f"{'Description':<{desc_width}}"
                   f"{'Caused By (ID)':<{caused_by_width}}"
                   f"{'Causes (ID)':<{causes_width}}")
@@ -245,10 +247,11 @@ class DAG:
             caused_by = node.get('causedBy', 'N/A')
             causes = node.get('causes', 'N/A')
 
-            if len(description) > 30:
-                description = description[:25] + '... '
+            if len(description) > 25:
+                description = description[:20] + '... '
 
             print(
+                f"{node_id:<{id_width}}"
                 f"{title:<{title_width}}"
                 f"{description:<{desc_width}}"
                 f"{caused_by:<{caused_by_width}}"
@@ -256,7 +259,7 @@ class DAG:
             )
 
         # Identify and display orphan nodes
-        print("Orphaned nodes:")
+        print("\nOrphaned nodes:\n")
         orphan_nodes = [n for n in nodes if not n.get('causedBy')
                         and not n.get('causes')]
         if orphan_nodes:
@@ -266,7 +269,7 @@ class DAG:
                     f"{orphan['description']}"
                 )
         else:
-            print("All nodes are currently associated in graph.")
+            print("\nNo orphans: All nodes are currently associated in graph.\n")
         print()
 
     def edit_nodes(self):
