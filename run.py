@@ -113,8 +113,12 @@ class DAG:
             "Enter Caused By (comma-separated IDs or leave blank): "
         )
         causes = input("Enter Causes (comma-separated IDs or leave blank): ")
-        probability = validate_input("Enter Probability (1-100 or leave blank): ", int, 1, 100)
-        severity = validate_input("Enter Severity (1-10 or leave blank): ", int, 1, 10)
+        probability = validate_input(
+            "Enter Probability (1-100 or leave blank): ", int, 1, 100
+        )
+        severity = validate_input(
+            "Enter Severity (1-10 or leave blank): ", int, 1, 10
+        )
 
         node_id = self.generate_unique_id()
 
@@ -387,7 +391,8 @@ class DAG:
         print("\nAdd New Outcome\n")
         title = validate_input("Enter outcome title: ")
         description = validate_input("Enter outcome description: ")
-        causedBy = validate_input("Enter Caused By (comma-separated node IDs): ", int)
+        causedBy = validate_input("Enter Caused By "
+                                  "(comma-separated node IDs): ", int)
         probability = validate_input("Enter Probability (1 - 100): ", 1, 100)
         severity = validate_input("Enter Severity (1 - 10): ", int, 1, 10)
 
@@ -472,29 +477,48 @@ class DAG:
         for outcome in outcomes:
             outcome_probability = outcome.get('probability', '0')
             # Handling empty string for probability
-            outcome_probability = int(outcome_probability) if outcome_probability.strip() else 0
+            if outcome_probability.strip():
+                outcome_probability = int(outcome_probability)
+            else:
+                outcome_probability = 0
             outcome_color = self.determine_color(outcome_probability)
-            print(f"\n{outcome_color}Outcome: {outcome['title']}{self.RESET}\n")
-            self.display_causes_for_outcome(outcome['outcome_id'], outcome['title'], nodes, 1)
+            print(f"\n{outcome_color}Outcome: {outcome['title']}"
+                  f"{self.RESET}\n"
+                  )
+            # Split the function call over two lines
+            self.display_causes_for_outcome(
+                outcome['outcome_id'], outcome['title'], nodes, 1)
             print()
 
     def display_causes_for_outcome(self, outcome_id, title, nodes, level):
-        causing_nodes = [node for node in nodes if str(outcome_id) in str(node.get('causes', '')).split(',')]
+        causing_nodes = [
+            node for node in nodes
+            if str(outcome_id) in str(node.get('causes', '')).split(',')
+        ]
         for node in causing_nodes:
             node_color = self.determine_color(int(node.get('probability', 0)))
-            print("  " * (level - 1) + f"{node_color}{node['title']}{self.RESET} ==> {title}")
+            print("  " * (level - 1) + f"{node_color}{node['title']}"
+                f"{self.RESET} ==> {title}")
 
             if node.get('causedBy', ''):
-                self.display_causes_for_node(node['node_id'], node['title'], nodes, level + 1)
+                self.display_causes_for_node(
+                    node['node_id'], node['title'], nodes, level + 1)
 
     def display_causes_for_node(self, node_id, title, nodes, level):
-        causing_nodes = [node for node in nodes if str(node_id) in str(node.get('causes', '')).split(',')]
+        causing_nodes = [
+            node for node in nodes
+            if str(node_id) in str(node.get('causes', '')).split(',')
+        ]
         for node in causing_nodes:
             node_color = self.determine_color(int(node.get('probability', 0)))
-            print("  " * (level - 1) + f"{node_color}{node['title']}{self.RESET} ==> {title}")
+            print("  " * (level - 1) + f"{node_color}{node['title']}"
+                  f"{self.RESET} ==> {title}"
+                  )
 
             if node.get('causedBy', ''):
-                self.display_causes_for_node(node['node_id'], node['title'], nodes, level + 1)
+                self.display_causes_for_node(
+                    node['node_id'], node['title'], nodes, level + 1
+                )
 
     def determine_color(self, probability):
         # Convert empty string to 0
