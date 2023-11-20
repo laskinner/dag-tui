@@ -1,5 +1,8 @@
 # DagTUI
 
+![image](https://github.com/laskinner/dag-tui/assets/1858258/f85bc6d4-4ef0-47f5-ad89-cd5e89c765d0)
+
+
 ## Overview
 At the heart of this project lies the concept of a Directed Acyclic Graph (DAG), a graph to illustrate causal relationships between nodes. While DAGs can be highly complex visualizations, to limit the scope of this project, the purpose of this is to allow a user to create very simple, linear causal graphs which calculate the conditional probability of an outcome and its composite severity, using the data provided by its preceding causes.
 
