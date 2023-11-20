@@ -516,7 +516,7 @@ def main():
     dag = DAG()
     while True:
         print("\nWhat would you like to do?\n")
-        print("1. View graph (verbose view)")
+        print("1. View nodes/outcomes (verbose view)")
         print("2. View graph (graphical view)")
         print("3. Edit nodes")
         print("4. Add nodes")
