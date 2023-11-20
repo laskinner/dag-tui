@@ -47,16 +47,6 @@ def validate_input(prompt, input_type=str, min_val=None, max_val=None):
             except ValueError:
                 print("\nInvalid input. Please enter a valid number.\n")
 
-def validate_yes_no(prompt):
-    """
-    Utility function to validate 'yes' or 'no' responses
-    """
-    while True:
-        response = input(prompt).lower()
-        if response in ['yes', 'no']:
-            return response
-        print("\nInvalid input. Please enter 'yes' or 'no'.")
-
 class DAG:
     """Class to represent a Directed Acyclic Graph (DAG)
     and interact with Google Sheets.
@@ -71,7 +61,6 @@ class DAG:
         """Initialize with worksheets for nodes."""
         self.nodes_sheet = SHEET.worksheet('nodes')
         self.outcomes_sheet = SHEET.worksheet('outcomes')
-
 
     def generate_unique_id(self):
         """Generate a unique ID for nods and outcomes."""
@@ -103,7 +92,13 @@ class DAG:
     def confirm_or_edit_node(self, node_id):
         """Ask the user to confirm or edit the node."""
         self.display_node(node_id)
-        choice = validate_yes_no("\nIs this information correct? (yes/no): ")
+        while True:
+            choice = input("Is this information correct? (yes/no): ").lower()
+            if choice in ['yes', 'no']:
+                break
+            else:
+                print("Please enter 'yes' or 'no'.")
+
         if choice == 'no':
             self.edit_nodes(node_id)
 
@@ -114,10 +109,10 @@ class DAG:
         print("\nAdd New Cause\n")
         title = validate_input("\nEnter Cause title: ")
         description = validate_input("Enter Cause description: ")
-        causedBy = validate_input(
+        causedBy = input(
             "Enter Caused By (comma-separated IDs or leave blank): "
-            , int)
-        causes = validate_input("Enter Causes (comma-separated IDs or leave blank): ")
+        )
+        causes = input("Enter Causes (comma-separated IDs or leave blank): ")
         probability = validate_input("Enter Probability (1-100 or leave blank): ", int, 1, 100)
         severity = validate_input("Enter Severity (1-10 or leave blank): ", int, 1, 10)
 
@@ -312,42 +307,46 @@ class DAG:
         if not items:
             print("No items to display.")
 
-    def edit_nodes(self):
+    def edit_nodes(self, node_id_to_edit=None):
         """Interface for editing nodes."""
-        self.print_nodes()
-        prompt_msg = "\nEnter the ID of the node to edit (or 'exit'): "
-        node_id_to_edit = validate_input(prompt_msg, int).strip()
+        if node_id_to_edit is None:
+            self.print_nodes()
+            prompt_msg = "\nEnter the ID of the node to edit (or 'exit'): "
+            node_id_to_edit = validate_input(prompt_msg, int)
 
-        if node_id_to_edit.lower() == 'exit':
-            return
+            if node_id_to_edit.lower() == 'exit':
+                return
 
         # Fetch all nodes and convert node_ids to string for comparison
         nodes = self.nodes_sheet.get_all_records()
-        node_to_edit = next((node for node in nodes if str(node['node_id']) ==
-                            node_id_to_edit), None)
+        node_to_edit = next(
+            (node for node in nodes 
+            if str(node['node_id']) == node_id_to_edit), 
+            None
+        )
 
         if not node_to_edit:
             print(f"No node found with ID {node_id_to_edit}")
             return
 
-        print("Enter new values (leave blank to keep unchanged):")
+        print("Enter new values:")
         new_title = validate_input(
             f"New Title [{node_to_edit.get('title', '')}]: "
         ) or node_to_edit['title']
         new_description = validate_input(
             f"New Description [{node_to_edit.get('description', '')}]: "
         ) or node_to_edit['description']
-        new_causedBy = validate_input(
+        new_causedBy = input(
             f"New Caused By [{node_to_edit.get('causedBy', '')}]: "
         ) or node_to_edit.get('causedBy', '')
-        new_causes = validate_input(
+        new_causes = input(
             f"New Causes [{node_to_edit.get('causes', '')}]: "
         ) or node_to_edit.get('causes', '')
         new_probability = validate_input(
             f"New Probability (1 - 100) "
             f"[{node_to_edit.get('probability', '')}]: ", int, 1, 100
         ) or node_to_edit.get('probability', '')
-        new_severity = input(
+        new_severity = validate_input(
             f"New Severity (1 - 10) "
             f"[{node_to_edit.get('severity', '')}]: ", int, 1, 10
         ) or node_to_edit.get('severity', '')
@@ -416,7 +415,7 @@ class DAG:
         print(f"  Severity: {outcome.get('severity', 'N/A')}\n")
 
     def calculate_outcome_probabilities_and_severities(self):
-        print("Calculating outcome probabilities and severities...\n")
+        print("\nCalculating outcome probabilities and severities...\n")
         outcomes_sheet = SHEET.worksheet('outcomes')
         outcomes = outcomes_sheet.get_all_records()
         nodes = self.nodes_sheet.get_all_records()
