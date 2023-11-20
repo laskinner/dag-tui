@@ -23,28 +23,41 @@ To use DagTUI:
 3) Visualize them in the graphical view
 
 ## Features
+![image](https://github.com/laskinner/dag-tui/assets/1858258/a40e7ab0-371d-416a-8dfc-04993f0a746a)
 
 ### Existing Features
 
-#### View Graph (Verbose)
+#### View nodes/outcomes (Verbose)
 - Users can view a detailed representation of the entire graph.
 - This view includes each node's ID, title, description, relationships, probabilities, and severities, along with similar details for outcomes.
 - Ideal for users who need a comprehensive understanding of the graph's structure.
+
+![image](https://github.com/laskinner/dag-tui/assets/1858258/636f94ab-f824-4c71-a6b4-ead4a13d89a0)
+
 
 #### View Graph (Visual)
 - A simplified visual representation of the graph is provided.
 - This view focuses on the relationships between nodes (causes) and outcomes, presented in a clear, linear format.
 - Color coding for probabilities enhances the visual experience, helping users quickly gauge the likelihood of different outcomes.
 
+![image](https://github.com/laskinner/dag-tui/assets/1858258/d86b6bab-ac7a-4f5b-b5de-f5a4df6a6709)
+
+
 #### Edit Nodes
 - Users can select and edit any node in the graph.
 - The editing interface allows changes to a node's title, description, relationships, probability, and severity.
 - Ensures that the graph can be kept up-to-date and reflects the current understanding of relationships and dependencies.
 
+![image](https://github.com/laskinner/dag-tui/assets/1858258/0c72a54d-72b2-4f2f-b460-b2dedeb50a4c)
+
+
 #### Add Nodes
 - The application provides an interface to add new nodes to the graph.
 - Users can input the node's title, description, and its relationships (causes and causedBy).
 - Automatically generates unique IDs for each new node to simplify tracking and editing.
+
+![image](https://github.com/laskinner/dag-tui/assets/1858258/29a3d884-3272-4f77-8e92-a72d9bb38a1b)
+
 
 #### Add Outcomes
 - Similar to adding nodes, users can also add outcomes to the graph.
@@ -54,6 +67,9 @@ To use DagTUI:
 #### Delete Nodes
 - Users have the option to delete nodes from the graph.
 - Ensures the graph remains relevant and uncluttered, especially in complex projects where dependencies may change over time.
+
+![image](https://github.com/laskinner/dag-tui/assets/1858258/b6064ecd-2e09-4730-886b-6c032f696990)
+
 
 #### Exit
 - A simple and straightforward option to exit the application.
@@ -111,6 +127,8 @@ No cross-platfrom testing was conducting, as DagTUI runs in a contained, browser
 - **Display Glitch while displaying nodes in table form:** There's an occasional minor misalignment in tables which display nodes, if node title exceeds a certain length.
 - **Handling Large Graphs:** The current version does not optimally handle very large graphs in performance and display, primarily due to the fact this this is a terminal environment, and these kinds of projects are generally paired with a powerful GUI.
 - **UI workflow**: When creating causes and outcomes, a table should appear displaying the available causes and outcomes which can be selected, rather than forcing the user to disrupt the creation/editng workflow if they don't have this information readily available.
+- **Exit**: "Exit" is being invalidated as an input. To exit, a user must restart the program.
+- **Add Outcome**: While adding outcomes, users are required to enter causal nodes. This should be optional.
 
 ### Future Testing Plans
 
