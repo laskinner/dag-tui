@@ -88,7 +88,7 @@ Functional testing focused on verifying each feature of DagTUI:
 
 As the sole tester, I focused on ensuring the tool was intuitive and user-friendly. I assessed the interface, instructions clarity, and overall usability, making adjustments based on personal observations. There were too many adjustments to list here. However, examples include:
 - Adjusting spacing between menus, headers, and text lines to improve readibility.
-- Shortening the randomnly genereted IDs from ~10 digits to 4 digits. Entering long IDs when selecting nodes in menus was very cumbersome, and required either shortening the ID length or developing a new implementation in which a user could select a node using a number generated for each node in the menu.
+- Shortening the randomnly genereted IDs from ~10 digits to 4 digits. Entering long IDs when selecting nodes in menus was very cumbersome for a user. With more time, I would have simply hidden the IDs entirely from the UI, and allowed the user to select nodes using menu numbers. However, a much faster, simpler, and less error-prone solution was to simply adjust the ID generator method to generate shorter IDs.
 - Adjusting column widths in tables to accommodate data while not exceeding 80 total characters in width.
 
 ### Error Handling and Data Validation
@@ -114,6 +114,10 @@ This testing documentation reflects my efforts as an individual developer to ens
 
 ### Validator Testing
 
+CI Python Linter shows no issues:
+![image](https://github.com/laskinner/dag-tui/assets/1858258/9d46a5a3-1e6a-4326-a163-0c673e168ac4)
+
+
 ### Unfixed Bugs
 
 ## Deployment
@@ -122,11 +126,17 @@ Automatic deployment is set up on Heroku.
 Therefore, to deploy, simply create a pull request for me to review. When I review it, I'll merge and the deploy will be complete.
 
 ## Credits
+Three libraries were used:
 
-### Content
+- Google spreadsheets
+- time
+- random
+
+The 'time' and 'random' and libraries were used to generate the random IDs when creating nodes.
+
 
 ### Media
-
+No external media was used in DagTUI.
 
 
 ## Reminders
