@@ -238,21 +238,23 @@ class DAG:
         caused_by_width = 15
         causes_width = 15
         total_width = (id_width + title_width + desc_width +
-            caused_by_width + causes_width)
+                       caused_by_width + causes_width)
 
         print(f"\n{header_title}:")
         header = (f"{'ID':<{id_width}}"
-                f"{'Title':<{title_width}}"
-                f"{'Description':<{desc_width}}"
-                f"{'Caused By (ID)':<{caused_by_width}}"
-                f"{'Causes (ID)':<{causes_width}}")
+                  f"{'Title':<{title_width}}"
+                  f"{'Description':<{desc_width}}"
+                  f"{'Caused By (ID)':<{caused_by_width}}"
+                  f"{'Causes (ID)':<{causes_width}}")
         print(header)
         print('-' * total_width)
 
     def print_table_contents(self, items, is_outcome=False):
         """Prints the contents of the table."""
         for item in items:
-            item_id = str(item['node_id'] if not is_outcome else item['outcome_id'])
+            item_id = (
+                str(item['node_id'] if not is_outcome else item['outcome_id'])
+            )
             title = item['title']
             description = (
                 item['description'][:27] + '...'
