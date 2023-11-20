@@ -220,57 +220,56 @@ class DAG:
     def print_nodes(self):
         """Print nodes in a formatted table."""
         nodes = self.nodes_sheet.get_all_records()
+        outcomes = self.outcomes_sheet.get_all_records()
 
+        # Print header for nodes
+        self.print_table_header("Causes")
+        self.print_table_contents(nodes)
+
+        # Print header for outcomes
+        self.print_table_header("Outcomes")
+        self.print_table_contents(outcomes, is_outcome=True)
+
+    def print_table_header(self, header_title):
+        """Prints the header for the table."""
         id_width = 5
-        title_width = 15 
+        title_width = 15
         desc_width = 30
-        caused_by_width = 15 
-        causes_width = 15 
-        total_width = id_width + title_width + desc_width + caused_by_width + \
-            causes_width
+        caused_by_width = 15
+        causes_width = 15
+        total_width = id_width + title_width + desc_width + caused_by_width + causes_width
 
+        print(f"\n{header_title}:")
         header = (f"{'ID':<{id_width}}"
-                  f"{'Title':<{title_width}}"
-                  f"{'Description':<{desc_width}}"
-                  f"{'Caused By (ID)':<{caused_by_width}}"
-                  f"{'Causes (ID)':<{causes_width}}")
-
-        print("\nNodes:")
+                f"{'Title':<{title_width}}"
+                f"{'Description':<{desc_width}}"
+                f"{'Caused By (ID)':<{caused_by_width}}"
+                f"{'Causes (ID)':<{causes_width}}")
         print(header)
         print('-' * total_width)
 
-        for node in nodes:
-            node_id = str(node['node_id'])
-            title = node['title']
-            description = (node['description'][:27] + '...') \
-                if len(node['description']) > 27 else node['description']
-            caused_by = node.get('causedBy', 'N/A')
-            causes = node.get('causes', 'N/A')
+    def print_table_contents(self, items, is_outcome=False):
+        """Prints the contents of the table."""
+        for item in items:
+            item_id = str(item['node_id'] if not is_outcome else item['outcome_id'])
+            title = item['title']
+            description = (item['description'][:27] + '...') if len(item['description']) > 27 else item['description']
+            caused_by = item.get('causedBy', 'N/A')
+            causes = item.get('causes', 'N/A')
 
             if len(description) > 25:
-                description = description[:20] + '... '
+                description = description[:20] + '...'
 
             print(
-                f"{node_id:<{id_width}}"
-                f"{title:<{title_width}}"
-                f"{description:<{desc_width}}"
-                f"{caused_by:<{caused_by_width}}"
-                f"{causes:<{causes_width}}"
+                f"{item_id:<5}"
+                f"{title:<15}"
+                f"{description:<30}"
+                f"{caused_by:<15}"
+                f"{causes:<15}"
             )
 
-        # Identify and display orphan nodes
-        print("\nOrphaned nodes:\n")
-        orphan_nodes = [n for n in nodes if not n.get('causedBy')
-                        and not n.get('causes')]
-        if orphan_nodes:
-            for orphan in orphan_nodes:
-                print(
-                    f"{orphan['node_id']} - {orphan['title']}: "
-                    f"{orphan['description']}"
-                )
-        else:
-            print("\nNo orphans: All nodes are currently associated in graph.\n")
-        print()
+        if not items:
+            print("No items to display.")
 
     def edit_nodes(self):
         """Interface for editing nodes."""
