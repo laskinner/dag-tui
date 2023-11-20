@@ -22,6 +22,40 @@ SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open("dag-tui")
 
+def validate_input(prompt, input_type=str, min_val=None, max_val=None):
+    """
+    Utilitiy function to validate user inputs anywhere in the app
+    """
+    while True:
+        user_input = input(prompt)
+        if input_type is str:
+            if user_input:
+                return user_input
+            else:
+                print("Input cannot be empty. Please try again.")
+        elif input_type is int:
+            try:
+                user_input = int(user_input)
+                if (min_val is not None and user_input < min_val) or \
+                    (max_val is not None and user_input > max_val):
+                    print(
+                        f"Please enter a value between {min_val} and "
+                        f"{max_val}."
+                    )
+                else:
+                    return user_input
+            except ValueError:
+                print("\nInvalid input. Please enter a valid number.\n")
+
+def validate_yes_no(prompt):
+    """
+    Utility function to validate 'yes' or 'no' responses
+    """
+    while True:
+        response = input(prompt).lower()
+        if response in ['yes', 'no']:
+            return response
+        print("\nInvalid input. Please enter 'yes' or 'no'.")
 
 class DAG:
     """Class to represent a Directed Acyclic Graph (DAG)
@@ -37,6 +71,7 @@ class DAG:
         """Initialize with worksheets for nodes."""
         self.nodes_sheet = SHEET.worksheet('nodes')
         self.outcomes_sheet = SHEET.worksheet('outcomes')
+
 
     def generate_unique_id(self):
         """Generate a unique ID for nods and outcomes."""
@@ -68,7 +103,7 @@ class DAG:
     def confirm_or_edit_node(self, node_id):
         """Ask the user to confirm or edit the node."""
         self.display_node(node_id)
-        choice = input("Is this information correct? (yes/no): ").lower()
+        choice = validate_yes_no("\nIs this information correct? (yes/no): ")
         if choice == 'no':
             self.edit_nodes(node_id)
 
@@ -77,14 +112,14 @@ class DAG:
         Interface for adding a new node to the DAG.
         """
         print("\nAdd New Cause\n")
-        title = input("Enter Cause title: ")
-        description = input("Enter Cause description: ")
-        causedBy = input(
+        title = validate_input("\nEnter Cause title: ")
+        description = validate_input("Enter Cause description: ")
+        causedBy = validate_input(
             "Enter Caused By (comma-separated IDs or leave blank): "
-            )
-        causes = input("Enter Causes (comma-separated IDs or leave blank): ")
-        probability = input("Enter Probability (1-100 or leave blank): ")
-        severity = input("Enter Severity (1-10 or leave blank): ")
+            , int)
+        causes = validate_input("Enter Causes (comma-separated IDs or leave blank): ")
+        probability = validate_input("Enter Probability (1-100 or leave blank): ", int, 1, 100)
+        severity = validate_input("Enter Severity (1-10 or leave blank): ", int, 1, 10)
 
         node_id = self.generate_unique_id()
 
@@ -99,7 +134,7 @@ class DAG:
         if causes:
             self.update_outcomes(causes, node_id)
 
-        print(f"\nCause ID {node_id} added: {title}. "
+        print(f"\nCause ID {node_id} added: {title}.\n "
               "\nPlease confirm the details:\n"
               )
         self.confirm_or_edit_node(node_id)
@@ -280,8 +315,8 @@ class DAG:
     def edit_nodes(self):
         """Interface for editing nodes."""
         self.print_nodes()
-        node_id_to_edit = input(
-                "\nEnter the ID of the node to edit (or 'exit'): ").strip()
+        prompt_msg = "\nEnter the ID of the node to edit (or 'exit'): "
+        node_id_to_edit = validate_input(prompt_msg, int).strip()
 
         if node_id_to_edit.lower() == 'exit':
             return
@@ -296,23 +331,25 @@ class DAG:
             return
 
         print("Enter new values (leave blank to keep unchanged):")
-        new_title = input(
+        new_title = validate_input(
             f"New Title [{node_to_edit.get('title', '')}]: "
         ) or node_to_edit['title']
-        new_description = input(
+        new_description = validate_input(
             f"New Description [{node_to_edit.get('description', '')}]: "
         ) or node_to_edit['description']
-        new_causedBy = input(
+        new_causedBy = validate_input(
             f"New Caused By [{node_to_edit.get('causedBy', '')}]: "
         ) or node_to_edit.get('causedBy', '')
-        new_causes = input(
+        new_causes = validate_input(
             f"New Causes [{node_to_edit.get('causes', '')}]: "
         ) or node_to_edit.get('causes', '')
-        new_probability = input(
-            f"New Probability [{node_to_edit.get('probability', '')}]: "
+        new_probability = validate_input(
+            f"New Probability (1 - 100) "
+            f"[{node_to_edit.get('probability', '')}]: ", int, 1, 100
         ) or node_to_edit.get('probability', '')
         new_severity = input(
-            f"New Severity [{node_to_edit.get('severity', '')}]: "
+            f"New Severity (1 - 10) "
+            f"[{node_to_edit.get('severity', '')}]: ", int, 1, 10
         ) or node_to_edit.get('severity', '')
 
         self.update_node(node_id_to_edit, new_title, new_description,
@@ -338,7 +375,9 @@ class DAG:
     def delete_node_ui(self):
         """Interface for deleting a node."""
         self.print_nodes()
-        node_id = input("\nEnter the ID of the node to delete (or 'exit'): ")
+        node_id = validate_input(
+            "\nEnter the ID of the node to delete (or 'exit'): ", int
+        )
         if node_id.lower() == 'exit':
             return
 
@@ -347,11 +386,11 @@ class DAG:
     def add_outcome(self):
         """Add a new outcome to the DAG."""
         print("\nAdd New Outcome\n")
-        title = input("Enter outcome title: ")
-        description = input("Enter outcome description: ")
-        causedBy = input("Enter Caused By (comma-separated node IDs): ")
-        probability = input("Enter Probability (1-100): ")
-        severity = input("Enter Severity (1-10): ")
+        title = validate_input("Enter outcome title: ")
+        description = validate_input("Enter outcome description: ")
+        causedBy = validate_input("Enter Caused By (comma-separated node IDs): ", int)
+        probability = validate_input("Enter Probability (1 - 100): ", 1, 100)
+        severity = validate_input("Enter Severity (1 - 10): ", int, 1, 10)
 
         outcome_id = self.generate_unique_id()
 
@@ -408,7 +447,7 @@ class DAG:
                         print(
                             f"Node ID {node_id} contributes with "
                             f"{node_probability}% probability and severity "
-                            f"of {node_severity}"
+                            f"of {node_severity}\n"
                             )
                     else:
                         print(f"Node ID {node_id} not found in nodes")
@@ -477,28 +516,22 @@ def main():
         print("6. Delete nodes")
         print("7. Exit")
 
-        try:
-            choice = int(input("\nEnter your choice: "))
-            if choice == 1:
-                dag.visualize()
-            if choice == 2:
-                dag.visualize_simple_graph()
-            elif choice == 3:
-                dag.edit_nodes()
-            elif choice == 4:
-                dag.add_node()
-            elif choice == 5:
-                dag.add_outcome()
-            elif choice == 6:
-                dag.delete_node_ui()
-            elif choice == 7:
-                print("Exiting program.")
-                break
-            else:
-                print("Invalid choice. Please enter a number between 1 and 5.")
-        except ValueError:
-            print("Please enter a valid number.")
-
+        choice = validate_input("\nEnter your choice (1-7): ", int, 1, 7)
+        if choice == 1:
+            dag.visualize()
+        if choice == 2:
+            dag.visualize_simple_graph()
+        elif choice == 3:
+            dag.edit_nodes()
+        elif choice == 4:
+            dag.add_node()
+        elif choice == 5:
+            dag.add_outcome()
+        elif choice == 6:
+            dag.delete_node_ui()
+        elif choice == 7:
+            print("Exiting program.")
+            break
 
 if __name__ == "__main__":
     main()
