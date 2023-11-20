@@ -22,6 +22,7 @@ SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open("dag-tui")
 
+
 def validate_input(prompt, input_type=str, min_val=None, max_val=None):
     """
     Utilitiy function to validate user inputs anywhere in the app
@@ -37,7 +38,7 @@ def validate_input(prompt, input_type=str, min_val=None, max_val=None):
             try:
                 user_input = int(user_input)
                 if (min_val is not None and user_input < min_val) or \
-                    (max_val is not None and user_input > max_val):
+                   (max_val is not None and user_input > max_val):
                     print(
                         f"Please enter a value between {min_val} and "
                         f"{max_val}."
@@ -46,6 +47,7 @@ def validate_input(prompt, input_type=str, min_val=None, max_val=None):
                     return user_input
             except ValueError:
                 print("\nInvalid input. Please enter a valid number.\n")
+
 
 class DAG:
     """Class to represent a Directed Acyclic Graph (DAG)
@@ -324,8 +326,8 @@ class DAG:
         # Fetch all nodes and convert node_ids to string for comparison
         nodes = self.nodes_sheet.get_all_records()
         node_to_edit = next(
-            (node for node in nodes 
-            if str(node['node_id']) == node_id_to_edit), 
+            (node for node in nodes
+                if str(node['node_id']) == node_id_to_edit),
             None
         )
 
@@ -498,7 +500,7 @@ class DAG:
         for node in causing_nodes:
             node_color = self.determine_color(int(node.get('probability', 0)))
             print("  " * (level - 1) + f"{node_color}{node['title']}"
-                f"{self.RESET} ==> {title}")
+                  f"{self.RESET} ==> {title}")
 
             if node.get('causedBy', ''):
                 self.display_causes_for_node(
@@ -564,6 +566,7 @@ def main():
         elif choice == 7:
             print("Exiting program.")
             break
+
 
 if __name__ == "__main__":
     main()
