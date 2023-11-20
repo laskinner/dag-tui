@@ -58,6 +58,57 @@ The DAG TUI (Terminal User Interface) project leverages the structure of DAGs to
 
 ## Testing
 
+This section outlines the testing approach employed to ensure the Directed Acyclic Graph Tool (DagTUI) functions correctly and meets the project requirements.
+
+### Functional Testing
+
+Functional testing focused on verifying each feature of DagTUI:
+
+1. **Node and Outcome Management:**
+   - **Adding Nodes:** Tested the ability to add nodes with all required details.
+   - **Editing Nodes:** Checked the functionality for updating node details, including outcomes.
+   - **Deleting Nodes:** Ensured nodes could be removed from the graph.
+   - **Adding Outcomes:** Verified the addition of outcomes and their connection to causes.
+   - **Displaying Nodes and Outcomes:** Confirmed correct display in both verbose and simplified graph views.
+
+2. **Graph Visualization:**
+   - **Verbose View:** Validated detailed display of nodes and outcomes.
+   - **Simplified Graphical View:** Checked for accurate and clear graphical representation.
+
+3. **Automatic ID Generation:**
+   - Ensured unique IDs were assigned upon node and outcome creation.
+
+4. **Probability and Severity Calculations:**
+   - Tested the logic for updating probabilities and severities of outcomes.
+
+### Usability Testing
+
+As the sole tester, I focused on ensuring the tool was intuitive and user-friendly. I assessed the interface, instructions clarity, and overall usability, making adjustments based on personal observations. There were too many adjustments to list here. However, examples include:
+- Adjusting spacing between menus, headers, and text lines to improve readibility.
+- Shortening the randomnly genereted IDs from ~10 digits to 4 digits. Entering long IDs when selecting nodes in menus was very cumbersome, and required either shortening the ID length or developing a new implementation in which a user could select a node using a number generated for each node in the menu.
+- Adjusting column widths in tables to accommodate data while not exceeding 80 total characters in width.
+
+### Error Handling and Data Validation
+
+- Checked the application's response to invalid user inputs.
+- Ensured appropriate error messages were displayed for incorrect actions.
+
+### Cross-Platform Testing
+
+No cross-platfrom testing was conducting, as DagTUI runs in a contained, browser-based environment.
+
+### Known Bugs
+
+- **Display Glitch while displaying nodes in table form:** There's an occasional minor misalignment in tables which display nodes, if node title exceeds a certain length.
+- **Handling Large Graphs:** The current version does not optimally handle very large graphs in performance and display, primarily due to the fact this this is a terminal environment, and these kinds of projects are generally paired with a powerful GUI.
+
+### Future Testing Plans
+
+- Further testing edge scenarios around causal relationships should be conducted.
+
+This testing documentation reflects my efforts as an individual developer to ensure the functionality and reliability of DagTUI. Future versions of the tool will incorporate more extensive testing methods for enhanced robustness.
+
+
 ### Validator Testing
 
 ### Unfixed Bugs
