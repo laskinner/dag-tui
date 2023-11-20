@@ -15,7 +15,12 @@ The DAG is a unique type of graph that embodies three key characteristics:
 
 - Graph: At its core, a DAG is a collection of nodes connected by edges. Each node typically represents an entity or an event, while the edges signify the relationships or interactions between these entities. The graphical nature of a DAG makes it an intuitive tool for visualizing complex relationships in a system.
 
-The DAG TUI (Terminal User Interface) project leverages the structure of DAGs to offer users a practical tool for creating, managing, and visualizing their own directed acyclic graphs directly in the terminal.
+The DAG TUI (Terminal User Interface) project leverages the structure of DAGs to offer a primitive tool for creating, managing, and visualizing a risk network directly in the terminal.
+
+To use DagTUI:
+1) Create an outcome
+2) Create causes and associate them with the outcome
+3) Visualize them in the graphical view
 
 ## Features
 
@@ -105,6 +110,7 @@ No cross-platfrom testing was conducting, as DagTUI runs in a contained, browser
 
 - **Display Glitch while displaying nodes in table form:** There's an occasional minor misalignment in tables which display nodes, if node title exceeds a certain length.
 - **Handling Large Graphs:** The current version does not optimally handle very large graphs in performance and display, primarily due to the fact this this is a terminal environment, and these kinds of projects are generally paired with a powerful GUI.
+- **UI workflow**: When creating causes and outcomes, a table should appear displaying the available causes and outcomes which can be selected, rather than forcing the user to disrupt the creation/editng workflow if they don't have this information readily available.
 
 ### Future Testing Plans
 
@@ -116,10 +122,7 @@ This testing documentation reflects my efforts as an individual developer to ens
 ### Validator Testing
 
 CI Python Linter shows no issues:
-![image](https://github.com/laskinner/dag-tui/assets/1858258/9d46a5a3-1e6a-4326-a163-0c673e168ac4)
-
-
-### Unfixed Bugs
+![image](https://github.com/laskinner/dag-tui/assets/1858258/4080771c-be1d-4ecc-ad3f-4e17a1c6d9d9)
 
 ## Deployment
 Automatic deployment is set up on Heroku.
@@ -138,30 +141,3 @@ The 'time' and 'random' and libraries were used to generate the random IDs when 
 
 ### Media
 No external media was used in DagTUI.
-
-
-## Reminders
-
-* Your code must be placed in the `run.py` file
-* Your dependencies must be placed in the `requirements.txt` file
-* Do not edit any of the other files or your code may not deploy properly
-
-## Creating the Heroku app
-
-When you create the app, you will need to add two buildpacks from the _Settings_ tab. The ordering is as follows:
-
-1. `heroku/python`
-2. `heroku/nodejs`
-
-You must then create a _Config Var_ called `PORT`. Set this to `8000`
-
-If you have credentials, such as in the Love Sandwiches project, you must create another _Config Var_ called `CREDS` and paste the JSON into the value field.
-
-Connect your GitHub repository and deploy as normal.
-
-## Constraints
-
-The deployment terminal is set to 80 columns by 24 rows. That means that each line of text needs to be 80 characters or less otherwise it will be wrapped onto a second line.
-
------
-Happy coding!
