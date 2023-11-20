@@ -76,7 +76,7 @@ class DAG:
         """
         Interface for adding a new node to the DAG.
         """
-        print("\nAdd New Cause")
+        print("\nAdd New Cause\n")
         title = input("Enter Cause title: ")
         description = input("Enter Cause description: ")
         causedBy = input(
@@ -237,7 +237,8 @@ class DAG:
         desc_width = 30
         caused_by_width = 15
         causes_width = 15
-        total_width = id_width + title_width + desc_width + caused_by_width + causes_width
+        total_width = (id_width + title_width + desc_width +
+            caused_by_width + causes_width)
 
         print(f"\n{header_title}:")
         header = (f"{'ID':<{id_width}}"
@@ -253,7 +254,10 @@ class DAG:
         for item in items:
             item_id = str(item['node_id'] if not is_outcome else item['outcome_id'])
             title = item['title']
-            description = (item['description'][:27] + '...') if len(item['description']) > 27 else item['description']
+            description = (
+                item['description'][:27] + '...'
+                if len(item['description']) > 27 else item['description']
+            )
             caused_by = item.get('causedBy', 'N/A')
             causes = item.get('causes', 'N/A')
 
