@@ -1,5 +1,18 @@
 # DagTUI
 
+## Overview
+At the heart of this project lies the concept of a Directed Acyclic Graph (DAG), a graph to illustrate causal relationships between nodes. While DAGs can be highly complex visualizations, to limit the scope of this project, the purpose of this is to allow a user to create very simple, linear causal graphs which calculate the conditional probability of an outcome and its composite severity, using the data provided by its preceding causes.
+
+The DAG is a unique type of graph that embodies three key characteristics:
+
+- Directed: Each edge in the graph has a direction, indicating a specific flow from one node to another. This directionality is crucial as it defines the relationship between nodes, often signifying a sequence or a dependency from one node (the cause) to another (the outcome).
+
+- Acyclic: The graph is devoid of cycles. This means there are no paths where a sequence of directed edges allows you to return to the starting node. The absence of cycles in the graph ensures that it can represent scenarios where backtracking is not feasible, such as time-based events or hierarchical structures.
+
+- Graph: At its core, a DAG is a collection of nodes connected by edges. Each node typically represents an entity or an event, while the edges signify the relationships or interactions between these entities. The graphical nature of a DAG makes it an intuitive tool for visualizing complex relationships in a system.
+
+The DAG TUI (Terminal User Interface) project leverages the structure of DAGs to offer users a practical tool for creating, managing, and visualizing their own directed acyclic graphs directly in the terminal.
+
 ## Features
 
 ### Existing Features
