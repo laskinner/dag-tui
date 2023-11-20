@@ -463,37 +463,46 @@ class DAG:
         print("Outcome probabilities and severities updated.")
 
     def visualize_simple_graph(self):
-        nodes = self.nodes_sheet.get_all_records()
         outcomes = self.outcomes_sheet.get_all_records()
-        print("Simplified Graph View:")
+        nodes = self.nodes_sheet.get_all_records()
+
+        print("\nSimplified Graph View:")
         print("------------------------------------------------------")
 
-        for node in nodes:
-            node_title = node.get('title', 'N/A')
-            node_probability = int(node.get('probability', 0))
-            color = self.determine_color(node_probability)
-
-            # Ensure causes is treated as a string
-            causes_str = str(node.get('causes', ''))
-            if causes_str:
-                causes_list = causes_str.split(',')
-                for cause in causes_list:
-                    outcome = next((o for o in outcomes if
-                                    str(o['outcome_id']) ==
-                                    cause.strip()), None)
-                    if outcome:
-                        outcome_title = outcome.get('title', 'N/A')
-                        outcome_probability = int(
-                            outcome.get('probability', 0)
-                        )
-                        outcome_color = self.determine_color(
-                            outcome_probability
-                        )
-                        print(f"{color}{node_title}{self.RESET} | ====> "
-                              f"| {outcome_color}{outcome_title}{self.RESET}")
+        for outcome in outcomes:
+            outcome_probability = outcome.get('probability', '0')
+            # Handling empty string for probability
+            outcome_probability = int(outcome_probability) if outcome_probability.strip() else 0
+            outcome_color = self.determine_color(outcome_probability)
+            print(f"\n{outcome_color}Outcome: {outcome['title']}{self.RESET}\n")
+            self.display_causes_for_outcome(outcome['outcome_id'], outcome['title'], nodes, 1)
             print()
 
+    def display_causes_for_outcome(self, outcome_id, title, nodes, level):
+        causing_nodes = [node for node in nodes if str(outcome_id) in str(node.get('causes', '')).split(',')]
+        for node in causing_nodes:
+            node_color = self.determine_color(int(node.get('probability', 0)))
+            print("  " * (level - 1) + f"{node_color}{node['title']}{self.RESET} ==> {title}")
+
+            if node.get('causedBy', ''):
+                self.display_causes_for_node(node['node_id'], node['title'], nodes, level + 1)
+
+    def display_causes_for_node(self, node_id, title, nodes, level):
+        causing_nodes = [node for node in nodes if str(node_id) in str(node.get('causes', '')).split(',')]
+        for node in causing_nodes:
+            node_color = self.determine_color(int(node.get('probability', 0)))
+            print("  " * (level - 1) + f"{node_color}{node['title']}{self.RESET} ==> {title}")
+
+            if node.get('causedBy', ''):
+                self.display_causes_for_node(node['node_id'], node['title'], nodes, level + 1)
+
     def determine_color(self, probability):
+        # Convert empty string to 0
+        try:
+            probability = int(probability) if probability else 0
+        except ValueError:
+            probability = 0
+
         if probability < 30:
             return self.GREEN
         elif 30 <= probability <= 70:
