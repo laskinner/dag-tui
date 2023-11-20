@@ -114,6 +114,9 @@ This testing documentation reflects my efforts as an individual developer to ens
 ### Unfixed Bugs
 
 ## Deployment
+Automatic deployment is set up on Heroku.
+
+Therefore, to deploy, simply create a pull request for me to review. When I review it, I'll merge and the deploy will be complete.
 
 ## Credits
 
